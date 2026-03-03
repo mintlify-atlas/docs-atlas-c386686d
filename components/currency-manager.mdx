@@ -1,0 +1,337 @@
+---
+title: Currency Manager
+description: Multi-currency conversion and display system with real-time exchange rates
+---
+
+## Overview
+
+The Currency Manager provides a comprehensive solution for handling multiple currencies in your application. It includes automatic currency conversion, formatted display, persistent currency selection, and exchange rate caching with automatic refresh.
+
+## Installation
+
+```bash
+npx shadcn@latest add https://rigidui.com/r/currency-manager.json
+```
+
+## Features
+
+- Multi-currency support with 150+ currencies
+- Real-time exchange rate conversion
+- Automatic rate caching and refresh
+- Persistent currency selection (localStorage)
+- Custom exchange rate provider support
+- Loading states and error handling
+- Formatted currency display with Intl.NumberFormat
+
+## Components
+
+### CurrencyProvider
+
+Root provider that manages currency state and exchange rates.
+
+### CurrencySelector
+
+Dropdown component for selecting the active currency.
+
+### CurrencyDisplay
+
+Displays a converted and formatted currency value.
+
+## API Reference
+
+### CurrencyProvider Props
+
+<ParamField path="children" type="ReactNode" required>
+  Your application components
+</ParamField>
+
+<ParamField path="fixedBaseCurrencyCode" type="string" required>
+  The base currency code for exchange rates (e.g., "USD", "EUR")
+</ParamField>
+
+<ParamField path="loaderComponent" type="ComponentType">
+  Custom loading spinner component
+</ParamField>
+
+<ParamField path="initialRates" type="Record<string, number>">
+  Initial exchange rates relative to base currency
+</ParamField>
+
+<ParamField path="fetchRatesFunction" type="() => Promise<Record<string, number>>">
+  Custom function to fetch exchange rates. Should return rates relative to base currency
+</ParamField>
+
+<ParamField path="refetchIntervalMs" type="number">
+  Milliseconds between automatic rate refreshes (e.g., 3600000 for 1 hour)
+</ParamField>
+
+<ParamField path="defaultSelectedCurrencyCode" type="string" default="'inr'">
+  Default currency to select on first load
+</ParamField>
+
+### CurrencySelector Props
+
+<ParamField path="className" type="string">
+  Additional CSS classes for the selector button
+</ParamField>
+
+### CurrencyDisplay Props
+
+<ParamField path="value" type="number" required>
+  The numeric value to convert and display
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes for the display element
+</ParamField>
+
+<ParamField path="sourceCurrency" type="string">
+  Currency code of the source value. Defaults to fixedBaseCurrencyCode
+</ParamField>
+
+## Usage Examples
+
+### Basic Setup
+
+```tsx
+import { CurrencyProvider } from '@/components/ui/currency-manager'
+
+const exchangeRates = {
+  EUR: 0.85,
+  GBP: 0.73,
+  INR: 83.12,
+  JPY: 110.53,
+}
+
+function App() {
+  return (
+    <CurrencyProvider
+      fixedBaseCurrencyCode="USD"
+      initialRates={exchangeRates}
+    >
+      <YourApp />
+    </CurrencyProvider>
+  )
+}
+```
+
+### With Custom Rate Fetching
+
+```tsx
+import { CurrencyProvider } from '@/components/ui/currency-manager'
+
+async function fetchExchangeRates() {
+  const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD')
+  const data = await response.json()
+  return data.rates // { EUR: 0.85, GBP: 0.73, ... }
+}
+
+function App() {
+  return (
+    <CurrencyProvider
+      fixedBaseCurrencyCode="USD"
+      fetchRatesFunction={fetchExchangeRates}
+      refetchIntervalMs={3600000} // Refresh every hour
+      defaultSelectedCurrencyCode="USD"
+    >
+      <YourApp />
+    </CurrencyProvider>
+  )
+}
+```
+
+### Currency Selector
+
+```tsx
+import { CurrencySelector } from '@/components/ui/currency-manager'
+
+function Header() {
+  return (
+    <header className="flex items-center justify-between p-4">
+      <Logo />
+      <CurrencySelector className="w-[200px]" />
+    </header>
+  )
+}
+```
+
+### Display Converted Prices
+
+```tsx
+import { CurrencyDisplay } from '@/components/ui/currency-manager'
+
+function ProductCard({ product }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{product.name}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">
+          <CurrencyDisplay value={product.price} />
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+```
+
+### Convert from Different Source Currency
+
+```tsx
+import { CurrencyDisplay } from '@/components/ui/currency-manager'
+
+// If your base currency is USD but prices are stored in EUR
+function EuropeanProduct({ priceInEUR }) {
+  return (
+    <div>
+      <p>Price:</p>
+      <CurrencyDisplay 
+        value={priceInEUR} 
+        sourceCurrency="EUR" 
+        className="text-xl font-semibold"
+      />
+    </div>
+  )
+}
+```
+
+### Real-world E-commerce Example
+
+```tsx
+import { 
+  CurrencyProvider, 
+  CurrencySelector, 
+  CurrencyDisplay 
+} from '@/components/ui/currency-manager'
+
+const products = [
+  { id: 1, name: 'Laptop', price: 999 },
+  { id: 2, name: 'Mouse', price: 29 },
+  { id: 3, name: 'Keyboard', price: 79 },
+]
+
+async function getRates() {
+  const res = await fetch('/api/exchange-rates')
+  return res.json()
+}
+
+function Store() {
+  return (
+    <CurrencyProvider
+      fixedBaseCurrencyCode="USD"
+      fetchRatesFunction={getRates}
+      refetchIntervalMs={1800000} // 30 minutes
+      defaultSelectedCurrencyCode="USD"
+    >
+      <div className="container mx-auto p-6">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Product Catalog</h1>
+          <CurrencySelector />
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {products.map(product => (
+            <Card key={product.id}>
+              <CardHeader>
+                <CardTitle>{product.name}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold mb-4">
+                  <CurrencyDisplay value={product.price} />
+                </div>
+                <Button className="w-full">Add to Cart</Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </CurrencyProvider>
+  )
+}
+```
+
+### Using the useCurrency Hook
+
+While not exported by default, you can access currency context internally:
+
+```tsx
+import { useCurrency } from '@/components/ui/currency-manager'
+
+function CustomPriceDisplay() {
+  const { 
+    currency, 
+    formatValue, 
+    convertValue, 
+    rates,
+    loadingRates 
+  } = useCurrency()
+  
+  const basePrice = 100
+  const convertedPrice = convertValue(basePrice)
+  
+  return (
+    <div>
+      <p>Selected Currency: {currency?.name} ({currency?.code})</p>
+      <p>Price: {formatValue(convertedPrice)}</p>
+      {loadingRates && <p>Updating rates...</p>}
+    </div>
+  )
+}
+```
+
+## Exchange Rate Management
+
+### Rate Caching
+
+Exchange rates are automatically cached in localStorage with a 24-hour expiration:
+
+- Reduces API calls
+- Faster initial load
+- Works offline with cached rates
+
+### Automatic Refresh
+
+When you provide `refetchIntervalMs`, rates are automatically refreshed:
+
+```tsx
+<CurrencyProvider
+  fixedBaseCurrencyCode="USD"
+  fetchRatesFunction={fetchRates}
+  refetchIntervalMs={3600000} // Every hour
+>
+```
+
+### Fallback Strategy
+
+If rate fetching fails, the component:
+1. Continues using cached rates if available
+2. Falls back to `initialRates` if provided
+3. Displays an error message if no rates are available
+
+## Currency Data
+
+The component fetches currency names from a CDN:
+- 150+ currencies supported
+- Includes currency codes and full names
+- Cached for 24 hours
+- Searchable in the selector dropdown
+
+<Note>
+Currency selection is automatically persisted to localStorage and restored on page reload.
+</Note>
+
+<Warning>
+Exchange rates should be fetched from a reliable source. Free APIs may have rate limits or outdated data. For production, consider using a paid service like:
+- ExchangeRate-API
+- Open Exchange Rates
+- Currency Layer
+- Fixer.io
+</Warning>
+
+<Tip>
+Set `refetchIntervalMs` based on your needs:
+- Financial apps: 5-15 minutes
+- E-commerce: 30-60 minutes
+- Display purposes: 2-24 hours
+</Tip>

@@ -1,0 +1,390 @@
+---
+title: Image Loader
+description: Advanced image loading component with beautiful loading states, error handling, and performance optimizations
+---
+
+## Overview
+
+The Image Loader component provides a beautiful loading experience for images with animated gradient backgrounds, smooth fade-in transitions, error handling, and performance optimizations.
+
+## Installation
+
+<Tabs>
+  <Tab title="Web">
+    ```bash
+    npx shadcn@latest add https://rigidui.com/r/image-loader.json
+    ```
+  </Tab>
+  <Tab title="React Native">
+    ```bash
+    npx shadcn@latest add https://rigidui.com/r/image-loader-rn.json
+    ```
+    
+    <Note>
+    React Native variant uses different implementation optimized for mobile platforms.
+    </Note>
+  </Tab>
+</Tabs>
+
+## Features
+
+- Animated gradient loading placeholder
+- Smooth fade-in transitions
+- Lazy loading support
+- Error state handling
+- Custom fallback components
+- Deterministic placeholder colors based on image src
+- Performance optimized with memoization
+- Accessible with proper ARIA attributes
+
+## API Reference
+
+### ImageLoader Props
+
+<ParamField path="src" type="string" required>
+  URL of the image to load
+</ParamField>
+
+<ParamField path="alt" type="string" required>
+  Alternative text for accessibility
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes for the container
+</ParamField>
+
+<ParamField path="blurIntensity" type="string" default="'blur(50px)'">
+  CSS blur filter value for the loading placeholder
+</ParamField>
+
+<ParamField path="width" type="number | string" default="400">
+  Width of the image container (pixels or CSS value)
+</ParamField>
+
+<ParamField path="height" type="number | string" default="300">
+  Height of the image container (pixels or CSS value)
+</ParamField>
+
+<ParamField path="fallbackComponent" type="ReactNode">
+  Custom component to show when image fails to load
+</ParamField>
+
+<ParamField path="onLoad" type="() => void">
+  Callback fired when image successfully loads
+</ParamField>
+
+<ParamField path="onError" type="(error: Event) => void">
+  Callback fired when image fails to load
+</ParamField>
+
+<ParamField path="loading" type="'lazy' | 'eager'" default="'lazy'">
+  Native browser lazy loading behavior
+</ParamField>
+
+<ParamField path="objectFit" type="'cover' | 'contain' | 'fill' | 'none' | 'scale-down'" default="'cover'">
+  CSS object-fit property for the image
+</ParamField>
+
+<ParamField path="customColors" type="ColorCombination[]">
+  Array of custom color combinations for loading placeholder
+</ParamField>
+
+<ParamField path="seed" type="number">
+  Custom seed for deterministic color selection
+</ParamField>
+
+### ColorCombination Interface
+
+<ParamField path="start" type="string" required>
+  Starting color of the gradient (HSL or RGB)
+</ParamField>
+
+<ParamField path="middle" type="string">
+  Middle color of the gradient (optional)
+</ParamField>
+
+<ParamField path="end" type="string" required>
+  Ending color of the gradient (HSL or RGB)
+</ParamField>
+
+## Usage Examples
+
+### Basic Usage
+
+```tsx
+import { ImageLoader } from '@/components/ui/image-loader'
+
+function ProductImage() {
+  return (
+    <ImageLoader
+      src="https://example.com/product.jpg"
+      alt="Product photo"
+      width={400}
+      height={300}
+    />
+  )
+}
+```
+
+### Responsive Image
+
+```tsx
+import { ImageLoader } from '@/components/ui/image-loader'
+
+function HeroImage() {
+  return (
+    <ImageLoader
+      src="/hero-image.jpg"
+      alt="Hero banner"
+      width="100%"
+      height="500px"
+      className="rounded-lg"
+      objectFit="cover"
+    />
+  )
+}
+```
+
+### With Custom Fallback
+
+```tsx
+import { ImageLoader } from '@/components/ui/image-loader'
+import { ImageOff } from 'lucide-react'
+
+function Avatar({ url, name }) {
+  return (
+    <ImageLoader
+      src={url}
+      alt={`${name}'s avatar`}
+      width={100}
+      height={100}
+      className="rounded-full"
+      fallbackComponent={
+        <div className="flex flex-col items-center justify-center h-full bg-muted">
+          <ImageOff className="h-8 w-8 text-muted-foreground" />
+          <p className="text-xs mt-2">Avatar not found</p>
+        </div>
+      }
+    />
+  )
+}
+```
+
+### Eager Loading for Above-the-Fold Images
+
+```tsx
+import { ImageLoader } from '@/components/ui/image-loader'
+
+function HeroSection() {
+  return (
+    <ImageLoader
+      src="/hero.jpg"
+      alt="Hero image"
+      loading="eager" // Don't lazy load above-the-fold images
+      width="100%"
+      height="600px"
+    />
+  )
+}
+```
+
+### With Loading and Error Callbacks
+
+```tsx
+import { ImageLoader } from '@/components/ui/image-loader'
+import { useState } from 'react'
+import { toast } from 'sonner'
+
+function GalleryImage({ src, alt }) {
+  const [isLoading, setIsLoading] = useState(true)
+
+  return (
+    <div className="relative">
+      {isLoading && (
+        <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+          Loading...
+        </div>
+      )}
+      
+      <ImageLoader
+        src={src}
+        alt={alt}
+        onLoad={() => {
+          setIsLoading(false)
+          console.log('Image loaded successfully')
+        }}
+        onError={(error) => {
+          setIsLoading(false)
+          toast.error('Failed to load image')
+          console.error('Image load error:', error)
+        }}
+      />
+    </div>
+  )
+}
+```
+
+### Custom Color Palette
+
+```tsx
+import { ImageLoader } from '@/components/ui/image-loader'
+
+const brandColors = [
+  { 
+    start: 'hsl(210, 100%, 50%)', 
+    middle: 'hsl(220, 100%, 60%)', 
+    end: 'hsl(230, 100%, 70%)' 
+  },
+  { 
+    start: 'hsl(340, 100%, 50%)', 
+    end: 'hsl(350, 100%, 60%)' 
+  },
+]
+
+function BrandedImage() {
+  return (
+    <ImageLoader
+      src="/brand-photo.jpg"
+      alt="Brand photo"
+      customColors={brandColors}
+      width={800}
+      height={600}
+    />
+  )
+}
+```
+
+### Different Object Fit Modes
+
+```tsx
+import { ImageLoader } from '@/components/ui/image-loader'
+
+function ImageGallery() {
+  return (
+    <div className="grid grid-cols-3 gap-4">
+      {/* Cover - fills container, may crop */}
+      <ImageLoader
+        src="/photo1.jpg"
+        alt="Photo 1"
+        objectFit="cover"
+        className="aspect-square"
+      />
+      
+      {/* Contain - fits within container, may have letterboxing */}
+      <ImageLoader
+        src="/photo2.jpg"
+        alt="Photo 2"
+        objectFit="contain"
+        className="aspect-square bg-gray-100"
+      />
+      
+      {/* Fill - stretches to fill container */}
+      <ImageLoader
+        src="/photo3.jpg"
+        alt="Photo 3"
+        objectFit="fill"
+        className="aspect-square"
+      />
+    </div>
+  )
+}
+```
+
+### E-commerce Product Grid
+
+```tsx
+import { ImageLoader } from '@/components/ui/image-loader'
+import { Card, CardContent } from '@/components/ui/card'
+
+interface Product {
+  id: number
+  name: string
+  image: string
+  price: number
+}
+
+function ProductGrid({ products }: { products: Product[] }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {products.map((product) => (
+        <Card key={product.id}>
+          <ImageLoader
+            src={product.image}
+            alt={product.name}
+            width="100%"
+            height={250}
+            className="rounded-t-lg"
+            loading="lazy"
+            onError={(error) => {
+              console.error(`Failed to load image for ${product.name}`, error)
+            }}
+          />
+          <CardContent className="pt-4">
+            <h3 className="font-semibold">{product.name}</h3>
+            <p className="text-lg font-bold">${product.price}</p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  )
+}
+```
+
+### User Avatar with Initials Fallback
+
+```tsx
+import { ImageLoader } from '@/components/ui/image-loader'
+
+function UserAvatar({ user }) {
+  const initials = user.name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+
+  return (
+    <ImageLoader
+      src={user.avatar}
+      alt={user.name}
+      width={40}
+      height={40}
+      className="rounded-full"
+      fallbackComponent={
+        <div className="w-full h-full flex items-center justify-center bg-primary text-primary-foreground font-semibold">
+          {initials}
+        </div>
+      }
+    />
+  )
+}
+```
+
+## Loading Placeholder
+
+The component uses an animated SVG gradient as a loading placeholder. The gradient:
+
+- Uses fractal noise for organic patterns
+- Blurs during loading for smooth transitions
+- Selects colors deterministically based on image URL
+- Provides 8 default color combinations
+- Supports custom color palettes
+
+## Performance Optimization
+
+- Uses `React.memo` for the SVG pattern
+- Lazy loading by default
+- Efficient re-rendering with `useCallback` and `useMemo`
+- Automatic cleanup of event listeners
+- Optimized color selection algorithm
+
+<Note>
+The component automatically generates a unique gradient pattern for each image based on its URL. This ensures consistent loading states for the same image across renders.
+</Note>
+
+<Tip>
+For above-the-fold images (like hero banners), use `loading="eager"` to ensure they load immediately. For images below the fold, keep the default `loading="lazy"` for better performance.
+</Tip>
+
+<Warning>
+Always provide both `src` and `alt` props. Missing alt text will trigger a console warning and impacts accessibility.
+</Warning>

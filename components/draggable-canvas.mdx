@@ -1,0 +1,357 @@
+---
+title: Draggable Canvas
+description: A draggable canvas component to create interactive and dynamic layouts with physics-based interactions
+---
+
+<ComponentPreview name="draggable-canvas-demo" />
+
+## Installation
+
+<Tabs defaultValue="cli">
+
+<TabsContent value="cli">
+
+```bash
+npx rigidui@latest add draggable-canvas
+```
+
+</TabsContent>
+
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Install the motion dependency:</Step>
+
+```bash
+npm install motion
+```
+
+<Step>Copy and paste the following code into your project.</Step>
+
+<ComponentSource name="draggable-canvas" />
+
+</Steps>
+
+</TabsContent>
+
+</Tabs>
+
+## Usage
+
+```tsx
+import { DraggableCanvas } from "@/components/ui/draggable-canvas"
+
+export default function Example() {
+  const items = [
+    {
+      src: "/image1.jpg",
+      top: "10%",
+      left: "20%",
+      width: 320,
+      height: 440
+    },
+    {
+      src: "/image2.jpg",
+      top: "40%",
+      left: "60%",
+      width: 280,
+      height: 380
+    }
+  ]
+
+  return <DraggableCanvas items={items} />
+}
+```
+
+## Examples
+
+### Basic Canvas
+
+```tsx
+const items = [
+  { src: "/photo1.jpg", top: "15%", left: "10%" },
+  { src: "/photo2.jpg", top: "35%", left: "50%" }
+]
+
+<DraggableCanvas items={items} />
+```
+
+### Custom Dimensions
+
+```tsx
+<DraggableCanvas 
+  items={items}
+  width="400vw"
+  height="200vh"
+/>
+```
+
+### With Custom Render
+
+```tsx
+const items = [
+  {
+    top: "20%",
+    left: "30%",
+    width: 400,
+    height: 300,
+    render: (
+      <div className="p-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl text-white">
+        <h3 className="text-2xl font-bold">Custom Content</h3>
+        <p>Any React component can be rendered here</p>
+      </div>
+    )
+  }
+]
+
+<DraggableCanvas items={items} />
+```
+
+### With Boundary Visualization
+
+```tsx
+<DraggableCanvas 
+  items={items}
+  showBoundary={true}
+  showCornerLabels={true}
+/>
+```
+
+### Custom Physics
+
+```tsx
+<DraggableCanvas 
+  items={items}
+  friction={0.95}          // Higher = slower deceleration
+  elasticity={0.3}         // Higher = more bounce
+  reboundDamping={0.7}     // Lower = more bounce at edges
+  stopThreshold={0.005}    // Lower = continues moving longer
+/>
+```
+
+### Disable Auto-Centering
+
+```tsx
+<DraggableCanvas 
+  items={items}
+  initialCenter={false}
+/>
+```
+
+### Custom Hover Scale
+
+```tsx
+const items = [
+  {
+    src: "/image.jpg",
+    top: "20%",
+    left: "30%",
+    hoverScale: 1.15  // Larger hover effect
+  }
+]
+
+<DraggableCanvas items={items} />
+```
+
+## API Reference
+
+### DraggableCanvas
+
+<ParamField path="items" type="DraggableCanvasItem[]" required>
+  Array of items to render on the canvas
+</ParamField>
+
+<ParamField path="width" type="string | number" default="'300vw'">
+  Canvas width (supports CSS units like vw, px, %)
+</ParamField>
+
+<ParamField path="height" type="string | number" default="'150vh'">
+  Canvas height (supports CSS units like vh, px, %)
+</ParamField>
+
+<ParamField path="showBoundary" type="boolean" default="false">
+  Display dashed boundary around canvas
+</ParamField>
+
+<ParamField path="showCornerLabels" type="boolean" default="false">
+  Show TL, TR, BL, BR labels at corners (requires showBoundary)
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes for canvas styling
+</ParamField>
+
+<ParamField path="style" type="React.CSSProperties">
+  Inline styles for the canvas
+</ParamField>
+
+<ParamField path="friction" type="number" default="0.92">
+  Deceleration friction (0-1). Higher values = slower stop
+</ParamField>
+
+<ParamField path="elasticity" type="number" default="0.2">
+  Bounce effect when exceeding bounds (0-1)
+</ParamField>
+
+<ParamField path="reboundDamping" type="number" default="0.8">
+  Velocity damping when rebounding from edges (0-1)
+</ParamField>
+
+<ParamField path="stopThreshold" type="number" default="0.01">
+  Minimum velocity before stopping movement
+</ParamField>
+
+<ParamField path="initialCenter" type="boolean" default="true">
+  Center the canvas on initial load
+</ParamField>
+
+### DraggableCanvasItem
+
+<ParamField path="src" type="string">
+  Image source URL (used when render is not provided)
+</ParamField>
+
+<ParamField path="top" type="string" required>
+  Vertical position (CSS units: %, px, vh, etc.)
+</ParamField>
+
+<ParamField path="left" type="string" required>
+  Horizontal position (CSS units: %, px, vw, etc.)
+</ParamField>
+
+<ParamField path="width" type="number | string" default="320">
+  Item width in pixels or CSS units
+</ParamField>
+
+<ParamField path="height" type="number | string" default="440">
+  Item height in pixels or CSS units
+</ParamField>
+
+<ParamField path="render" type="React.ReactNode">
+  Custom React content (overrides src if provided)
+</ParamField>
+
+<ParamField path="hoverScale" type="number" default="1.05">
+  Scale factor on hover (1.0 = no scale)
+</ParamField>
+
+## Physics & Interaction
+
+### Dragging Behavior
+
+The canvas uses velocity-based physics for natural interactions:
+
+1. **Momentum**: Flicking the canvas maintains velocity based on drag speed
+2. **Friction**: Gradual deceleration controlled by the `friction` prop
+3. **Boundaries**: Elastic bounce at edges controlled by `elasticity`
+4. **Touch Support**: Full touch event support for mobile devices
+
+<Callout type="info">
+  The component uses `requestAnimationFrame` for smooth 60fps animations and automatically handles cleanup on unmount.
+</Callout>
+
+### Performance Optimizations
+
+- Uses `transform3d` for hardware-accelerated rendering
+- `will-change-transform` on draggable items
+- Efficient ref-based state management (no unnecessary re-renders)
+- Automatic cleanup of event listeners and animation frames
+
+<Callout type="tip">
+  For large canvases with many items, consider lazy loading images or using lower resolution previews to improve initial load time.
+</Callout>
+
+## Motion Integration
+
+### Item Hover Animations
+
+Each item uses motion/react for smooth hover effects:
+
+```tsx
+<motion.div
+  whileHover={{ scale: item.hoverScale ?? 1.05 }}
+  transition={{ 
+    type: 'spring', 
+    stiffness: 260, 
+    damping: 20 
+  }}
+>
+```
+
+### Image Hover Animations
+
+```tsx
+<motion.img
+  whileHover={{ scale: item.hoverScale ?? 1.05 }}
+  transition={{ 
+    type: 'spring', 
+    stiffness: 260, 
+    damping: 20 
+  }}
+/>
+```
+
+<Callout>
+  The spring animation provides natural, physics-based hover effects. Adjust `stiffness` (higher = faster) and `damping` (higher = less oscillation) for different feels.
+</Callout>
+
+## Responsive Behavior
+
+- Automatically recalculates bounds on window resize
+- Touch-friendly for mobile devices
+- Prevents scrolling while dragging
+- Centers content on initial load (when `initialCenter` is true)
+
+<Callout type="warning">
+  The canvas uses `position: absolute` and may overflow the viewport. Ensure the parent container has appropriate overflow handling.
+</Callout>
+
+## Advanced Usage
+
+### Creating a Gallery
+
+```tsx
+const galleryItems = [
+  { src: "/art1.jpg", top: "5%", left: "5%", width: 300, height: 400 },
+  { src: "/art2.jpg", top: "15%", left: "35%", width: 350, height: 450 },
+  { src: "/art3.jpg", top: "45%", left: "10%", width: 280, height: 380 },
+  { src: "/art4.jpg", top: "25%", left: "70%", width: 320, height: 420 }
+]
+
+<div className="relative w-full h-screen overflow-hidden">
+  <DraggableCanvas 
+    items={galleryItems}
+    width="400vw"
+    height="200vh"
+    friction={0.94}
+    elasticity={0.25}
+  />
+</div>
+```
+
+### Mixed Content Canvas
+
+```tsx
+const mixedItems = [
+  {
+    src: "/photo.jpg",
+    top: "10%",
+    left: "10%"
+  },
+  {
+    top: "30%",
+    left: "50%",
+    width: 500,
+    height: 300,
+    render: (
+      <div className="bg-white p-6 rounded-lg shadow-xl">
+        <h2 className="text-3xl font-bold mb-4">Card Title</h2>
+        <p className="text-gray-600">Custom card content with any React components</p>
+      </div>
+    )
+  }
+]
+
+<DraggableCanvas items={mixedItems} />
+```

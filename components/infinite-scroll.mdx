@@ -1,0 +1,364 @@
+---
+title: Infinite Scroll
+description: A high-performance infinite scroll component with virtualization support powered by TanStack Virtual.
+---
+
+<ComponentPreview name="infinite-scroll-demo" />
+
+## Installation
+
+<Tabs defaultValue="cli">
+
+<TabsItem value="cli">
+
+```bash
+npx rigidui@latest add infinite-scroll
+```
+
+</TabsItem>
+
+<TabsItem value="manual">
+
+<Steps>
+
+<Step>
+
+Install the required dependencies:
+
+```bash
+npm install @tanstack/react-virtual
+```
+
+</Step>
+
+<Step>
+
+Copy and paste the following code into your project:
+
+<ComponentSource name="infinite-scroll" />
+
+</Step>
+
+</Steps>
+
+</TabsItem>
+
+</Tabs>
+
+## Usage
+
+```tsx
+import { InfiniteScroll } from "@/components/ui/infinite-scroll"
+import { useState } from "react"
+
+interface Item {
+  id: number
+  title: string
+  description: string
+}
+
+export default function Demo() {
+  const [items, setItems] = useState<Item[]>([])
+  const [hasNextPage, setHasNextPage] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const loadMore = async () => {
+    setIsLoading(true)
+    // Simulate API call
+    const newItems = await fetchItems(items.length)
+    setItems([...items, ...newItems])
+    setHasNextPage(newItems.length > 0)
+    setIsLoading(false)
+  }
+
+  return (
+    <InfiniteScroll
+      items={items}
+      hasNextPage={hasNextPage}
+      isLoading={isLoading}
+      onLoadMore={loadMore}
+      renderItem={(item) => (
+        <div className="p-4 border rounded-lg">
+          <h3 className="font-semibold">{item.title}</h3>
+          <p className="text-sm text-muted-foreground">{item.description}</p>
+        </div>
+      )}
+    />
+  )
+}
+```
+
+## Examples
+
+### Basic Infinite Scroll
+
+<ComponentPreview name="infinite-scroll-demo" />
+
+### With Virtualization
+
+For large lists, enable virtualization for better performance:
+
+```tsx
+import { InfiniteScroll } from "@/components/ui/infinite-scroll"
+
+export default function VirtualizedDemo() {
+  return (
+    <InfiniteScroll
+      items={items}
+      hasNextPage={hasNextPage}
+      isLoading={isLoading}
+      onLoadMore={loadMore}
+      virtualized={true}
+      height={600}
+      estimateSize={() => 100}
+      overscan={5}
+      renderItem={(item) => (
+        <div className="p-4 border rounded-lg">
+          <h3>{item.title}</h3>
+          <p>{item.description}</p>
+        </div>
+      )}
+    />
+  )
+}
+```
+
+<Callout>
+Virtualization is recommended when dealing with lists of 100+ items. It significantly improves performance by only rendering visible items.
+</Callout>
+
+### Custom Loader
+
+Provide a custom loading component:
+
+```tsx
+import { InfiniteScroll } from "@/components/ui/infinite-scroll"
+import { Loader2 } from "lucide-react"
+
+const CustomLoader = () => (
+  <div className="flex items-center justify-center py-8">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    <span className="ml-2">Loading more items...</span>
+  </div>
+)
+
+export default function CustomLoaderDemo() {
+  return (
+    <InfiniteScroll
+      items={items}
+      hasNextPage={hasNextPage}
+      isLoading={isLoading}
+      onLoadMore={loadMore}
+      loader={CustomLoader}
+      renderItem={(item) => <ItemCard item={item} />}
+    />
+  )
+}
+```
+
+### Custom End Message
+
+```tsx
+import { InfiniteScroll } from "@/components/ui/infinite-scroll"
+
+export default function CustomEndMessageDemo() {
+  return (
+    <InfiniteScroll
+      items={items}
+      hasNextPage={hasNextPage}
+      isLoading={isLoading}
+      onLoadMore={loadMore}
+      endMessage={
+        <div className="text-center py-8">
+          <p className="text-lg font-semibold">You've reached the end!</p>
+          <p className="text-sm text-muted-foreground">No more items to load</p>
+        </div>
+      }
+      renderItem={(item) => <ItemCard item={item} />}
+    />
+  )
+}
+```
+
+### Reverse Order
+
+Useful for chat-like interfaces:
+
+```tsx
+import { InfiniteScroll } from "@/components/ui/infinite-scroll"
+
+export default function ReverseDemo() {
+  return (
+    <InfiniteScroll
+      items={messages}
+      hasNextPage={hasNextPage}
+      isLoading={isLoading}
+      onLoadMore={loadMore}
+      reverse={true}
+      renderItem={(message) => (
+        <div className="p-3 bg-muted rounded-lg">
+          <p>{message.text}</p>
+          <span className="text-xs text-muted-foreground">{message.timestamp}</span>
+        </div>
+      )}
+    />
+  )
+}
+```
+
+### Initial Load
+
+Automatically load items on mount:
+
+```tsx
+import { InfiniteScroll } from "@/components/ui/infinite-scroll"
+
+export default function InitialLoadDemo() {
+  return (
+    <InfiniteScroll
+      items={items}
+      hasNextPage={hasNextPage}
+      isLoading={isLoading}
+      onLoadMore={loadMore}
+      initialLoad={true}
+      renderItem={(item) => <ItemCard item={item} />}
+    />
+  )
+}
+```
+
+### Custom Threshold
+
+Control when to trigger loading:
+
+```tsx
+import { InfiniteScroll } from "@/components/ui/infinite-scroll"
+
+export default function ThresholdDemo() {
+  return (
+    <InfiniteScroll
+      items={items}
+      hasNextPage={hasNextPage}
+      isLoading={isLoading}
+      onLoadMore={loadMore}
+      threshold={200} // Load when 200px from bottom
+      renderItem={(item) => <ItemCard item={item} />}
+    />
+  )
+}
+```
+
+## API Reference
+
+### InfiniteScroll
+
+<ParamField path="items" type="T[]" required>
+  Array of items to display.
+</ParamField>
+
+<ParamField path="hasNextPage" type="boolean" required>
+  Whether there are more items to load.
+</ParamField>
+
+<ParamField path="isLoading" type="boolean" required>
+  Whether the component is currently loading more items.
+</ParamField>
+
+<ParamField path="onLoadMore" type="() => void | Promise<void>" required>
+  Callback function to load more items. Can be async.
+</ParamField>
+
+<ParamField path="renderItem" type="(item: T, index?: number) => React.ReactNode" required>
+  Function to render each item.
+</ParamField>
+
+<ParamField path="threshold" type="number" default="100">
+  Distance in pixels from the bottom to trigger loading more items.
+</ParamField>
+
+<ParamField path="loader" type="React.ComponentType">
+  Custom loader component to display while loading.
+</ParamField>
+
+<ParamField path="endMessage" type="React.ReactNode">
+  Message to display when all items have been loaded.
+</ParamField>
+
+<ParamField path="errorMessage" type="React.ReactNode">
+  Error message to display if loading fails.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes for the container.
+</ParamField>
+
+<ParamField path="itemClassName" type="string">
+  Additional CSS classes for each item wrapper.
+</ParamField>
+
+<ParamField path="reverse" type="boolean" default="false">
+  Whether to reverse the order of items (useful for chat interfaces).
+</ParamField>
+
+<ParamField path="initialLoad" type="boolean" default="false">
+  Whether to automatically load items on mount.
+</ParamField>
+
+<ParamField path="scrollableTarget" type="string">
+  ID of a scrollable element to use as the scroll container.
+</ParamField>
+
+<ParamField path="virtualized" type="boolean" default="false">
+  Enable virtualization for better performance with large lists.
+</ParamField>
+
+<ParamField path="estimateSize" type="() => number" default="() => 50">
+  Function to estimate the size of each item (used with virtualization).
+</ParamField>
+
+<ParamField path="height" type="number" default="400">
+  Height of the scroll container in pixels (used with virtualization).
+</ParamField>
+
+<ParamField path="overscan" type="number" default="5">
+  Number of items to render outside the visible area (used with virtualization).
+</ParamField>
+
+## Features
+
+- **Virtualization**: Optional virtualization powered by `@tanstack/react-virtual` for handling large lists efficiently
+- **Intersection Observer**: Uses native Intersection Observer API for optimal performance
+- **Flexible Loading**: Supports both sync and async load functions
+- **Custom Components**: Fully customizable loader and end message
+- **Reverse Mode**: Support for reverse-ordered lists (chat interfaces)
+- **Initial Load**: Optional automatic loading on component mount
+- **Threshold Control**: Customize when to trigger loading
+- **Accessibility**: Includes ARIA attributes for screen readers
+- **TypeScript**: Full TypeScript support with generic types
+- **Error Handling**: Built-in error message display
+
+<Callout type="warning">
+When using virtualization, make sure to provide accurate `estimateSize` values for best performance. Items with dynamic heights may cause scrolling issues.
+</Callout>
+
+## Performance Considerations
+
+### When to Use Virtualization
+
+- Lists with 100+ items
+- Items with complex rendering logic
+- Mobile devices with limited resources
+
+### When Not to Use Virtualization
+
+- Small lists (< 50 items)
+- Items with highly variable heights
+- Simple item rendering
+
+<Callout type="info">
+The component automatically handles loading state to prevent multiple simultaneous requests. If `onLoadMore` returns a Promise, it will wait for completion before allowing another load.
+</Callout>
+
+## Dependencies
+
+- `@tanstack/react-virtual` - For virtualization support

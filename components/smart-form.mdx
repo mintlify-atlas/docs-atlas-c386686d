@@ -1,0 +1,615 @@
+---
+title: Smart Form
+description: An intelligent form component that integrates React Hook Form, Zod validation, and TanStack Query for seamless data mutations.
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="CLI">
+    ```bash
+    npx rigidui-cli@latest add smart-form
+    ```
+  </Tab>
+  <Tab title="Manual">
+    Install dependencies:
+    ```bash
+    npm install react-hook-form zod @hookform/resolvers @tanstack/react-query
+    ```
+
+    Copy and paste the component source code into your project.
+  </Tab>
+</Tabs>
+
+## Usage
+
+```tsx
+import { SmartForm, SmartFormField } from "@/components/ui/smart-form"
+import { z } from "zod"
+
+const userSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  age: z.number().min(18, "Must be 18 or older"),
+})
+
+type UserFormData = z.infer<typeof userSchema>
+
+export function CreateUserForm() {
+  const createUser = async (data: UserFormData) => {
+    const response = await fetch("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+    return response.json()
+  }
+
+  return (
+    <SmartForm
+      schema={userSchema}
+      mutationFn={createUser}
+      onSuccess={(data) => console.log("User created:", data)}
+      queryKey={["users"]}
+    >
+      {(form) => (
+        <>
+          <SmartFormField form={form} name="name" type="text" label="Name" />
+          <SmartFormField form={form} name="email" type="email" label="Email" />
+          <SmartFormField form={form} name="age" type="number" label="Age" />
+        </>
+      )}
+    </SmartForm>
+  )
+}
+```
+
+## Examples
+
+### Basic Form
+
+Simple form with text inputs:
+
+```tsx
+import { SmartForm, SmartFormField } from "@/components/ui/smart-form"
+import { z } from "zod"
+
+const contactSchema = z.object({
+  name: z.string().min(1),
+  message: z.string().min(10),
+})
+
+export function ContactForm() {
+  return (
+    <SmartForm
+      schema={contactSchema}
+      mutationFn={async (data) => {
+        // Submit to API
+        return fetch("/api/contact", {
+          method: "POST",
+          body: JSON.stringify(data),
+        }).then(res => res.json())
+      }}
+      submitText="Send Message"
+    >
+      {(form) => (
+        <>
+          <SmartFormField
+            form={form}
+            name="name"
+            type="text"
+            label="Your Name"
+            placeholder="John Doe"
+          />
+          <SmartFormField
+            form={form}
+            name="message"
+            type="textarea"
+            label="Message"
+            placeholder="Your message here..."
+          />
+        </>
+      )}
+    </SmartForm>
+  )
+}
+```
+
+### Form with Select and Radio
+
+Use different input types:
+
+```tsx
+import { SmartForm, SmartFormField } from "@/components/ui/smart-form"
+import { z } from "zod"
+
+const preferencesSchema = z.object({
+  theme: z.string(),
+  notifications: z.string(),
+  language: z.string(),
+})
+
+export function PreferencesForm() {
+  return (
+    <SmartForm
+      schema={preferencesSchema}
+      mutationFn={async (data) => {
+        return fetch("/api/preferences", {
+          method: "POST",
+          body: JSON.stringify(data),
+        }).then(res => res.json())
+      }}
+    >
+      {(form) => (
+        <>
+          <SmartFormField
+            form={form}
+            name="theme"
+            type="select"
+            label="Theme"
+            options={[
+              { value: "light", label: "Light" },
+              { value: "dark", label: "Dark" },
+              { value: "system", label: "System" },
+            ]}
+          />
+          <SmartFormField
+            form={form}
+            name="notifications"
+            type="radio"
+            label="Notifications"
+            options={[
+              { value: "all", label: "All notifications" },
+              { value: "important", label: "Important only" },
+              { value: "none", label: "None" },
+            ]}
+          />
+          <SmartFormField
+            form={form}
+            name="language"
+            type="select"
+            label="Language"
+            options={[
+              { value: "en", label: "English" },
+              { value: "es", label: "Spanish" },
+              { value: "fr", label: "French" },
+            ]}
+          />
+        </>
+      )}
+    </SmartForm>
+  )
+}
+```
+
+### Edit Mode with Default Values
+
+Pre-populate form for editing:
+
+```tsx
+import { SmartForm, SmartFormField } from "@/components/ui/smart-form"
+import { z } from "zod"
+
+const productSchema = z.object({
+  name: z.string(),
+  price: z.number(),
+  description: z.string(),
+})
+
+export function EditProductForm({ product }) {
+  return (
+    <SmartForm
+      schema={productSchema}
+      mode="edit"
+      defaultValues={product}
+      mutationFn={async (data) => {
+        return fetch(`/api/products/${product.id}`, {
+          method: "PUT",
+          body: JSON.stringify(data),
+        }).then(res => res.json())
+      }}
+      queryKey={["products", product.id]}
+      submitText="Save Changes"
+    >
+      {(form) => (
+        <>
+          <SmartFormField
+            form={form}
+            name="name"
+            type="text"
+            label="Product Name"
+          />
+          <SmartFormField
+            form={form}
+            name="price"
+            type="number"
+            label="Price"
+          />
+          <SmartFormField
+            form={form}
+            name="description"
+            type="textarea"
+            label="Description"
+          />
+        </>
+      )}
+    </SmartForm>
+  )
+}
+```
+
+### Form with Sections
+
+Organize form into logical sections:
+
+```tsx
+import { SmartForm, SmartFormField, FormSection } from "@/components/ui/smart-form"
+import { z } from "zod"
+
+const profileSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  email: z.string().email(),
+  phone: z.string(),
+  address: z.string(),
+  city: z.string(),
+})
+
+export function ProfileForm() {
+  return (
+    <SmartForm
+      schema={profileSchema}
+      mutationFn={async (data) => {
+        return fetch("/api/profile", {
+          method: "POST",
+          body: JSON.stringify(data),
+        }).then(res => res.json())
+      }}
+    >
+      {(form) => (
+        <>
+          <FormSection
+            title="Personal Information"
+            description="Your basic details"
+          >
+            <SmartFormField
+              form={form}
+              name="firstName"
+              type="text"
+              label="First Name"
+            />
+            <SmartFormField
+              form={form}
+              name="lastName"
+              type="text"
+              label="Last Name"
+            />
+          </FormSection>
+
+          <FormSection
+            title="Contact Information"
+            description="How we can reach you"
+          >
+            <SmartFormField
+              form={form}
+              name="email"
+              type="email"
+              label="Email"
+            />
+            <SmartFormField
+              form={form}
+              name="phone"
+              type="text"
+              label="Phone"
+            />
+          </FormSection>
+
+          <FormSection title="Address">
+            <SmartFormField
+              form={form}
+              name="address"
+              type="text"
+              label="Street Address"
+            />
+            <SmartFormField
+              form={form}
+              name="city"
+              type="text"
+              label="City"
+            />
+          </FormSection>
+        </>
+      )}
+    </SmartForm>
+  )
+}
+```
+
+### Conditional Fields
+
+Show/hide fields based on other values:
+
+```tsx
+import { SmartForm, SmartFormField, ConditionalField } from "@/components/ui/smart-form"
+import { z } from "zod"
+
+const orderSchema = z.object({
+  deliveryMethod: z.string(),
+  address: z.string().optional(),
+  storeLocation: z.string().optional(),
+})
+
+export function OrderForm() {
+  return (
+    <SmartForm
+      schema={orderSchema}
+      mutationFn={async (data) => {
+        return fetch("/api/orders", {
+          method: "POST",
+          body: JSON.stringify(data),
+        }).then(res => res.json())
+      }}
+    >
+      {(form) => (
+        <>
+          <SmartFormField
+            form={form}
+            name="deliveryMethod"
+            type="select"
+            label="Delivery Method"
+            options={[
+              { value: "delivery", label: "Home Delivery" },
+              { value: "pickup", label: "Store Pickup" },
+            ]}
+          />
+
+          <ConditionalField form={form} when="deliveryMethod" equals="delivery">
+            <SmartFormField
+              form={form}
+              name="address"
+              type="text"
+              label="Delivery Address"
+            />
+          </ConditionalField>
+
+          <ConditionalField form={form} when="deliveryMethod" equals="pickup">
+            <SmartFormField
+              form={form}
+              name="storeLocation"
+              type="select"
+              label="Pickup Location"
+              options={[
+                { value: "store1", label: "Downtown Store" },
+                { value: "store2", label: "Mall Store" },
+              ]}
+            />
+          </ConditionalField>
+        </>
+      )}
+    </SmartForm>
+  )
+}
+```
+
+### With Checkbox and Color Picker
+
+Use specialized input types:
+
+```tsx
+import { SmartForm, SmartFormField } from "@/components/ui/smart-form"
+import { z } from "zod"
+
+const settingsSchema = z.object({
+  enableFeature: z.boolean(),
+  brandColor: z.string(),
+  description: z.string(),
+})
+
+export function SettingsForm() {
+  return (
+    <SmartForm
+      schema={settingsSchema}
+      mutationFn={async (data) => {
+        return fetch("/api/settings", {
+          method: "POST",
+          body: JSON.stringify(data),
+        }).then(res => res.json())
+      }}
+    >
+      {(form) => (
+        <>
+          <SmartFormField
+            form={form}
+            name="enableFeature"
+            type="checkbox"
+            label="Enable experimental features"
+          />
+          <SmartFormField
+            form={form}
+            name="brandColor"
+            type="color"
+            label="Brand Color"
+          />
+          <SmartFormField
+            form={form}
+            name="description"
+            type="textarea"
+            label="Description"
+          />
+        </>
+      )}
+    </SmartForm>
+  )
+}
+```
+
+## API Reference
+
+### SmartForm
+
+The main form component with integrated mutation handling.
+
+<ParamField path="schema" type="z.ZodSchema<T>" required>
+  Zod schema for form validation.
+</ParamField>
+
+<ParamField path="mutationFn" type="(data: T) => Promise<any>" required>
+  Async function to handle form submission (e.g., API call).
+</ParamField>
+
+<ParamField path="children" type="(form: UseFormReturn<T>) => ReactNode" required>
+  Render function that receives the form instance and returns form fields.
+</ParamField>
+
+<ParamField path="queryKey" type="string[]" default="[]">
+  TanStack Query key to invalidate after successful mutation.
+</ParamField>
+
+<ParamField path="mode" type="'create' | 'edit'" default="'create'">
+  Form mode, affects default button text.
+</ParamField>
+
+<ParamField path="defaultValues" type="Partial<T>">
+  Default values for form fields.
+</ParamField>
+
+<ParamField path="onSuccess" type="(data: any) => void">
+  Callback function called on successful submission.
+</ParamField>
+
+<ParamField path="onError" type="(error: Error) => void">
+  Callback function called on submission error.
+</ParamField>
+
+<ParamField path="submitText" type="string">
+  Custom text for the submit button. Defaults to "Create" or "Update" based on mode.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes to apply to the form card.
+</ParamField>
+
+### SmartFormField
+
+Individual form field with automatic type handling.
+
+<ParamField path="form" type="UseFormReturn<T>" required>
+  React Hook Form instance from the parent SmartForm.
+</ParamField>
+
+<ParamField path="name" type="FieldPath<T>" required>
+  Field name (must match a key in your schema).
+</ParamField>
+
+<ParamField path="type" type="'text' | 'email' | 'password' | 'number' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'color'" required>
+  Input type to render.
+</ParamField>
+
+<ParamField path="label" type="string">
+  Label text for the field.
+</ParamField>
+
+<ParamField path="placeholder" type="string">
+  Placeholder text for the input.
+</ParamField>
+
+<ParamField path="description" type="string">
+  Helper text displayed below the input.
+</ParamField>
+
+<ParamField path="options" type="FormFieldOption[]">
+  Options array for select and radio fields. Each option has `value` and `label`.
+</ParamField>
+
+<ParamField path="disabled" type="boolean">
+  Disables the input field.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes for the field container.
+</ParamField>
+
+### FormSection
+
+Groups related fields with a title and description.
+
+<ParamField path="title" type="string" required>
+  Section title.
+</ParamField>
+
+<ParamField path="description" type="string">
+  Optional description text.
+</ParamField>
+
+<ParamField path="children" type="ReactNode" required>
+  Form fields within this section.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes.
+</ParamField>
+
+### ConditionalField
+
+Renders children only when a specific condition is met.
+
+<ParamField path="form" type="UseFormReturn<T>" required>
+  React Hook Form instance.
+</ParamField>
+
+<ParamField path="when" type="FieldPath<T>" required>
+  Field name to watch.
+</ParamField>
+
+<ParamField path="equals" type="any" required>
+  Value to compare against.
+</ParamField>
+
+<ParamField path="children" type="ReactNode" required>
+  Fields to render when condition is met.
+</ParamField>
+
+### FormFieldOption
+
+Interface for select and radio options:
+
+```tsx
+interface FormFieldOption {
+  value: string
+  label: string
+}
+```
+
+## Features
+
+- **Auto Validation**: Zod schema validation with instant feedback
+- **Type Safety**: Full TypeScript support with type inference
+- **Auto Mutation**: Integrated TanStack Query mutations with loading states
+- **Query Invalidation**: Automatic cache invalidation on success
+- **Form Reset**: Automatically resets form after successful submission
+- **Error Handling**: Built-in error states and callbacks
+- **Multiple Input Types**: Support for text, email, password, number, textarea, select, checkbox, radio, color
+- **Conditional Logic**: Show/hide fields based on form values
+- **Sections**: Organize forms into logical sections
+- **Accessible**: Built on shadcn/ui components with ARIA support
+- **Loading States**: Visual feedback during submission
+- **Success Indicators**: Checkmark icon on successful submission
+
+## Dependencies
+
+This component requires the following dependencies:
+
+- `react-hook-form` - Form state management
+- `zod` - Schema validation
+- `@hookform/resolvers` - Zod resolver for react-hook-form
+- `@tanstack/react-query` - Data mutations and cache management
+- `button`, `input`, `textarea`, `checkbox`, `radio-group`, `select`, `card`, `form` - shadcn/ui components
+- `lucide-react` - For icons
+
+<Note>
+  The form automatically resets after successful submission and invalidates the specified query keys to refresh related data.
+</Note>
+
+<Warning>
+  Make sure to wrap your app with `QueryClientProvider` from TanStack Query for the mutations to work properly.
+</Warning>

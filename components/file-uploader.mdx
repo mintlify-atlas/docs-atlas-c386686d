@@ -1,0 +1,289 @@
+---
+title: File Uploader
+description: A comprehensive file uploader component with drag-and-drop, preview, validation, and image cropping capabilities.
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="CLI">
+    ```bash
+    npx rigidui-cli@latest add file-uploader
+    ```
+  </Tab>
+  <Tab title="Manual">
+    Install dependencies:
+    ```bash
+    npm install react-image-crop
+    ```
+
+    Copy and paste the component source code into your project.
+  </Tab>
+</Tabs>
+
+## Usage
+
+```tsx
+import {
+  FileUploader,
+  FileUploaderDropZone,
+  FileUploaderFileList,
+  FileUploaderCrop,
+} from "@/components/ui/file-uploader"
+
+export function FileUploadExample() {
+  const handleFilesReady = (files: File[]) => {
+    console.log("Files ready:", files)
+    // Handle file upload logic here
+  }
+
+  return (
+    <FileUploader
+      onFilesReady={handleFilesReady}
+      maxFiles={5}
+      maxSize={10 * 1024 * 1024} // 10MB
+      accept={["image/*", "application/pdf"]}
+    >
+      <FileUploader.DropZone />
+      <FileUploader.FileList enableCropping />
+      <FileUploader.Crop aspectRatio={16 / 9} />
+    </FileUploader>
+  )
+}
+```
+
+## Examples
+
+### Basic File Upload
+
+Simple file uploader with drag-and-drop and preview:
+
+```tsx
+import { FileUploader } from "@/components/ui/file-uploader"
+
+export function BasicUpload() {
+  return (
+    <FileUploader
+      onFilesReady={(files) => console.log(files)}
+      maxFiles={3}
+    >
+      <FileUploader.DropZone />
+      <FileUploader.FileList />
+    </FileUploader>
+  )
+}
+```
+
+### Image Upload with Cropping
+
+Upload images with built-in cropping functionality:
+
+```tsx
+import { FileUploader } from "@/components/ui/file-uploader"
+
+export function ImageUploadWithCrop() {
+  return (
+    <FileUploader
+      onFilesReady={(files) => console.log(files)}
+      accept={["image/*"]}
+      maxFiles={1}
+    >
+      <FileUploader.DropZone />
+      <FileUploader.FileList enableCropping showHeader />
+      <FileUploader.Crop
+        aspectRatio={1}
+        minWidth={100}
+        minHeight={100}
+      />
+    </FileUploader>
+  )
+}
+```
+
+### Custom File Types
+
+Restrict upload to specific file types:
+
+```tsx
+import { FileUploader } from "@/components/ui/file-uploader"
+
+export function DocumentUpload() {
+  return (
+    <FileUploader
+      onFilesReady={(files) => console.log(files)}
+      accept={["application/pdf", "application/msword", "text/*"]}
+      maxFiles={10}
+      maxSize={5 * 1024 * 1024} // 5MB
+    >
+      <FileUploader.DropZone />
+      <FileUploader.FileList />
+    </FileUploader>
+  )
+}
+```
+
+### Custom Upload Handler
+
+Implement custom upload logic with progress tracking:
+
+```tsx
+import { useState } from "react"
+import { FileUploader } from "@/components/ui/file-uploader"
+
+export function CustomUpload() {
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+
+  const handleUpload = async (files: File[]) => {
+    // Simulate upload
+    for (const file of files) {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      try {
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        })
+        const data = await response.json()
+        console.log("Uploaded:", data)
+      } catch (error) {
+        console.error("Upload failed:", error)
+      }
+    }
+
+    setUploadedFiles(files)
+  }
+
+  return (
+    <FileUploader onFilesReady={handleUpload}>
+      <FileUploader.DropZone />
+      <FileUploader.FileList />
+    </FileUploader>
+  )
+}
+```
+
+## API Reference
+
+### FileUploader
+
+The main wrapper component that manages file upload state.
+
+<ParamField path="onFilesReady" type="(files: File[]) => void">
+  Callback function called when files are ready to be uploaded. Receives an array of valid File objects.
+</ParamField>
+
+<ParamField path="maxFiles" type="number" default="10">
+  Maximum number of files that can be uploaded.
+</ParamField>
+
+<ParamField path="maxSize" type="number" default="10485760">
+  Maximum file size in bytes (default: 10MB).
+</ParamField>
+
+<ParamField path="accept" type="string[]" default="['image/*', 'application/pdf', 'text/*']">
+  Array of accepted file types (MIME types or wildcards).
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes to apply to the wrapper.
+</ParamField>
+
+<ParamField path="children" type="ReactNode" required>
+  Child components (DropZone, FileList, Crop).
+</ParamField>
+
+### FileUploader.DropZone
+
+Drag-and-drop area for file selection.
+
+<ParamField path="className" type="string">
+  Additional CSS classes to apply to the drop zone.
+</ParamField>
+
+<ParamField path="disabled" type="boolean">
+  Disables the drop zone when true.
+</ParamField>
+
+### FileUploader.FileList
+
+Displays the list of uploaded files with previews.
+
+<ParamField path="className" type="string">
+  Additional CSS classes to apply to the file list.
+</ParamField>
+
+<ParamField path="showHeader" type="boolean" default="true">
+  Shows the header with file count and clear all button.
+</ParamField>
+
+<ParamField path="enableCropping" type="boolean" default="false">
+  Enables image cropping functionality for image files.
+</ParamField>
+
+### FileUploader.Crop
+
+Image cropping dialog for uploaded images.
+
+<ParamField path="aspectRatio" type="number">
+  Fixed aspect ratio for cropping (e.g., 16/9, 1, 4/3).
+</ParamField>
+
+<ParamField path="minWidth" type="number" default="50">
+  Minimum width of the cropped area in pixels.
+</ParamField>
+
+<ParamField path="minHeight" type="number" default="50">
+  Minimum height of the cropped area in pixels.
+</ParamField>
+
+### FileWithPreview
+
+Interface for file objects with metadata:
+
+```tsx
+interface FileWithPreview {
+  id: string
+  file: File
+  name: string
+  size: number
+  type: string
+  progress: number
+  status: 'uploading' | 'complete' | 'error'
+  error?: string | null
+  preview?: string | null
+  croppedPreview?: string | null
+  originalFile?: File
+}
+```
+
+## Features
+
+- **Drag-and-Drop**: Intuitive drag-and-drop interface for file selection
+- **File Validation**: Built-in validation for file type and size
+- **Image Preview**: Automatic preview generation for image files
+- **Image Cropping**: Integrated cropping with aspect ratio support
+- **Progress Tracking**: Visual progress indicators for uploads
+- **Error Handling**: Clear error messages for invalid files
+- **Multiple Files**: Support for multiple file uploads with limits
+- **File Icons**: Contextual icons based on file type
+- **Responsive**: Works seamlessly on mobile and desktop
+
+## Dependencies
+
+This component requires the following dependencies:
+
+- `react-image-crop` - For image cropping functionality
+- `button` - shadcn/ui button component
+- `card` - shadcn/ui card component
+- `badge` - shadcn/ui badge component
+- `dialog` - shadcn/ui dialog component
+- `lucide-react` - For icons
+
+<Note>
+  The `onFilesReady` callback only receives valid files that passed validation. Files with errors are excluded from the array.
+</Note>
+
+<Warning>
+  File upload is handled client-side. You need to implement your own server-side upload logic in the `onFilesReady` callback.
+</Warning>

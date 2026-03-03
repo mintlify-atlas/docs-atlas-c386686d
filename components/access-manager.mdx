@@ -1,0 +1,373 @@
+---
+title: Access Manager
+description: Authentication and authorization system with session validation for controlling UI visibility and user permissions
+---
+
+## Overview
+
+The Access Manager provides a comprehensive authentication and authorization system for React applications. It includes role-based access control (RBAC), permission management, session validation, and multiple components for controlling UI visibility based on user permissions.
+
+## Installation
+
+```bash
+npx shadcn@latest add https://rigidui.com/r/access-manager.json
+```
+
+## Components
+
+### AccessManagerProvider
+
+The root provider component that manages authentication state and provides access control context to your application.
+
+### AccessGate
+
+Conditionally renders children based on user roles, permissions, and session validity.
+
+### SessionGuard
+
+Protects routes and components by ensuring the user has a valid session.
+
+### ConditionalWrapper
+
+Wraps children with different components based on user permissions.
+
+## API Reference
+
+### AccessManagerProvider Props
+
+<ParamField path="children" type="ReactNode" required>
+  The components to wrap with access control context
+</ParamField>
+
+<ParamField path="user" type="UserSession | null" required>
+  The current user session object containing roles and permissions
+</ParamField>
+
+<ParamField path="rolePermissionMap" type="RolePermissionMap">
+  Maps roles to their associated permissions
+</ParamField>
+
+<ParamField path="onUnauthorized" type="() => void">
+  Callback function triggered when unauthorized access is attempted
+</ParamField>
+
+### UserSession Interface
+
+<ParamField path="id" type="string" required>
+  Unique user identifier
+</ParamField>
+
+<ParamField path="email" type="string">
+  User's email address
+</ParamField>
+
+<ParamField path="username" type="string">
+  User's username
+</ParamField>
+
+<ParamField path="name" type="string">
+  User's display name
+</ParamField>
+
+<ParamField path="avatar" type="string">
+  URL to user's avatar image
+</ParamField>
+
+<ParamField path="roles" type="string[]" required>
+  Array of role strings assigned to the user
+</ParamField>
+
+<ParamField path="permissions" type="string[]" required>
+  Array of permission strings granted to the user
+</ParamField>
+
+<ParamField path="metadata" type="Record<string, unknown>">
+  Additional user metadata
+</ParamField>
+
+<ParamField path="isActive" type="boolean">
+  Whether the user session is currently active
+</ParamField>
+
+<ParamField path="expiresAt" type="Date | string">
+  Session expiration timestamp
+</ParamField>
+
+<ParamField path="lastActivity" type="Date | string">
+  Timestamp of last user activity
+</ParamField>
+
+<ParamField path="sessionId" type="string">
+  Unique session identifier
+</ParamField>
+
+### AccessGate Props
+
+<ParamField path="children" type="ReactNode" required>
+  Content to conditionally render based on access control
+</ParamField>
+
+<ParamField path="roles" type="string | string[]">
+  Required role(s) for access
+</ParamField>
+
+<ParamField path="permissions" type="string | string[]">
+  Required permission(s) for access
+</ParamField>
+
+<ParamField path="requireAllRoles" type="boolean" default="false">
+  Whether all specified roles are required (AND logic) vs any role (OR logic)
+</ParamField>
+
+<ParamField path="requireAllPermissions" type="boolean" default="false">
+  Whether all specified permissions are required (AND logic) vs any permission (OR logic)
+</ParamField>
+
+<ParamField path="requireValidSession" type="boolean" default="true">
+  Whether a valid session is required
+</ParamField>
+
+<ParamField path="fallback" type="ReactNode">
+  Component to render when access is denied
+</ParamField>
+
+<ParamField path="onUnauthorized" type="() => void">
+  Callback when unauthorized access is attempted
+</ParamField>
+
+<ParamField path="mode" type="'hide' | 'disable' | 'show-fallback'" default="'hide'">
+  How to handle unauthorized access: hide content, disable it, or show fallback
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class name for the wrapper
+</ParamField>
+
+<ParamField path="disabledClassName" type="string">
+  CSS class name applied when mode is 'disable'
+</ParamField>
+
+### SessionGuard Props
+
+<ParamField path="children" type="ReactNode" required>
+  Protected content requiring valid session
+</ParamField>
+
+<ParamField path="fallback" type="ReactNode">
+  Content to show when session is invalid
+</ParamField>
+
+<ParamField path="redirectTo" type="string">
+  URL to redirect to when session is invalid
+</ParamField>
+
+<ParamField path="onSessionExpired" type="() => void">
+  Callback when session expires
+</ParamField>
+
+## Usage Examples
+
+### Basic Setup
+
+```tsx
+import { AccessManagerProvider } from '@/components/ui/access-manager'
+
+const userSession = {
+  id: '123',
+  name: 'John Doe',
+  email: 'john@example.com',
+  roles: ['admin', 'editor'],
+  permissions: ['read', 'write', 'delete'],
+  isActive: true,
+  expiresAt: new Date(Date.now() + 3600000) // 1 hour from now
+}
+
+const rolePermissionMap = {
+  admin: ['read', 'write', 'delete', 'manage_users'],
+  editor: ['read', 'write'],
+  viewer: ['read']
+}
+
+function App() {
+  return (
+    <AccessManagerProvider 
+      user={userSession} 
+      rolePermissionMap={rolePermissionMap}
+    >
+      <YourApp />
+    </AccessManagerProvider>
+  )
+}
+```
+
+### Role-Based Access Control
+
+```tsx
+import { AccessGate } from '@/components/ui/access-manager'
+
+function AdminPanel() {
+  return (
+    <AccessGate roles="admin">
+      <div>
+        <h2>Admin Panel</h2>
+        <p>Only administrators can see this content</p>
+      </div>
+    </AccessGate>
+  )
+}
+```
+
+### Permission-Based Access Control
+
+```tsx
+import { AccessGate } from '@/components/ui/access-manager'
+
+function DeleteButton() {
+  return (
+    <AccessGate 
+      permissions="delete"
+      mode="disable"
+      fallback={<Button disabled>Delete (No Permission)</Button>}
+    >
+      <Button variant="destructive">Delete</Button>
+    </AccessGate>
+  )
+}
+```
+
+### Multiple Roles with Fallback
+
+```tsx
+import { AccessGate } from '@/components/ui/access-manager'
+
+function ContentEditor() {
+  return (
+    <AccessGate 
+      roles={['admin', 'editor']}
+      fallback={
+        <div className="text-muted-foreground">
+          You need editor or admin role to access this feature
+        </div>
+      }
+    >
+      <RichTextEditor />
+    </AccessGate>
+  )
+}
+```
+
+### Session Protection
+
+```tsx
+import { SessionGuard } from '@/components/ui/access-manager'
+
+function ProtectedRoute() {
+  return (
+    <SessionGuard 
+      redirectTo="/login"
+      onSessionExpired={() => {
+        console.log('Session expired, redirecting...')
+      }}
+    >
+      <Dashboard />
+    </SessionGuard>
+  )
+}
+```
+
+### Using the Hook
+
+```tsx
+import { useAccessManager } from '@/components/ui/access-manager'
+
+function ProfileSettings() {
+  const { user, hasPermission, isSessionExpiring } = useAccessManager()
+  
+  const canEditProfile = hasPermission('edit_profile')
+  const sessionExpiringSoon = isSessionExpiring(10) // 10 minutes threshold
+  
+  return (
+    <div>
+      <h2>Welcome, {user?.name}</h2>
+      {sessionExpiringSoon && (
+        <Alert>
+          Your session will expire soon. Please save your work.
+        </Alert>
+      )}
+      {canEditProfile && <EditProfileButton />}
+    </div>
+  )
+}
+```
+
+### Conditional Wrapper
+
+```tsx
+import { ConditionalWrapper } from '@/components/ui/access-manager'
+
+function FeatureCard({ feature }) {
+  return (
+    <ConditionalWrapper
+      permissions="premium"
+      wrapper={(children) => (
+        <Card className="border-gold">
+          <Badge>Premium</Badge>
+          {children}
+        </Card>
+      )}
+      fallbackWrapper={(children) => (
+        <Card className="opacity-50">
+          <Badge>Upgrade Required</Badge>
+          {children}
+        </Card>
+      )}
+    >
+      <CardContent>{feature.description}</CardContent>
+    </ConditionalWrapper>
+  )
+}
+```
+
+## Hooks
+
+### useAccessManager()
+
+Returns the full access manager context:
+
+- `user` - Current user session
+- `rolePermissionMap` - Role to permission mapping
+- `hasRole(role)` - Check if user has a specific role
+- `hasPermission(permission)` - Check if user has a specific permission
+- `hasAnyRole(roles)` - Check if user has any of the specified roles
+- `hasAllRoles(roles)` - Check if user has all specified roles
+- `hasAnyPermission(permissions)` - Check if user has any of the specified permissions
+- `hasAllPermissions(permissions)` - Check if user has all specified permissions
+- `isSessionValid()` - Check if the current session is valid
+- `getSessionTimeRemaining()` - Get milliseconds until session expiration
+- `isSessionExpiring(thresholdMinutes)` - Check if session expires within threshold
+
+### usePermissionCheck()
+
+Returns a boolean indicating if the user meets the specified criteria:
+
+```tsx
+const hasAccess = usePermissionCheck({
+  roles: ['admin', 'editor'],
+  permissions: 'write',
+  requireAllRoles: false,
+  requireAllPermissions: true,
+  requireValidSession: true
+})
+```
+
+<Note>
+The Access Manager automatically validates session expiration and activity status. Set `expiresAt` on the user session to enable automatic session expiration checks.
+</Note>
+
+<Warning>
+Always validate permissions on the server side as well. Client-side access control should be used for UI/UX purposes only, not as a security measure.
+</Warning>
+
+<Tip>
+Use the `rolePermissionMap` to centralize permission management. This allows you to change permissions for a role without updating every component.
+</Tip>

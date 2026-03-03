@@ -1,122 +1,104 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "RigidUI",
+  "theme": "palm",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#3b82f6",
+    "light": "#60a5fa",
+    "dark": "#1e40af"
   },
-  "favicon": "/favicon.svg",
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/fgrreloaded/rigidui"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/fgrreloaded/rigidui"
+    }
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "introduction",
+              "installation",
+              "quickstart"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Core Components",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "components/access-manager",
+              "components/content-grid",
+              "components/currency-manager",
+              "components/draggable-dashboard",
+              "components/guided-tour",
+              "components/image-loader",
+              "components/location-picker",
+              "components/smart-search"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Form Components",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "components/file-uploader",
+              "components/multi-step-form-wrapper",
+              "components/password-strength-meter",
+              "components/smart-form"
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Data Display",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "components/file-explorer",
+              "components/infinite-scroll",
+              "components/notification-center"
+            ]
+          },
+          {
+            "group": "Creative Components",
+            "pages": [
+              "components/data-reveal",
+              "components/draggable-canvas",
+              "components/text-shift",
+              "components/creative-buttons"
+            ]
+          },
+          {
+            "group": "Hooks",
+            "pages": [
+              "hooks/use-location"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Guides",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Usage Guides",
             "pages": [
-              "api-reference/introduction"
+              "guides/customization",
+              "guides/theming",
+              "guides/react-native",
+              "guides/typescript"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Advanced",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "guides/contributing",
+              "guides/development"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

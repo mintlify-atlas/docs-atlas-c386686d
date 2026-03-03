@@ -1,0 +1,374 @@
+---
+title: Customization
+description: Learn how to customize RigidUI components with Tailwind CSS, the cn() utility, and component structure
+---
+
+RigidUI components are built to be fully customizable using Tailwind CSS. This guide covers everything you need to know about customizing components to fit your design system.
+
+## Component Structure
+
+All RigidUI components follow a consistent structure that makes them easy to customize:
+
+```tsx
+import { cn } from "@/lib/utils"
+
+export interface ComponentProps {
+  className?: string
+  // ... other props
+}
+
+export function Component({ className, ...props }: ComponentProps) {
+  return (
+    <div className={cn("default-classes", className)}>
+      {/* Component content */}
+    </div>
+  )
+}
+```
+
+Every component accepts a `className` prop that allows you to override or extend default styles.
+
+## The cn() Utility
+
+The `cn()` utility is a helper function that combines `clsx` and `tailwind-merge` to intelligently merge Tailwind CSS classes:
+
+```ts
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+```
+
+### Why cn()?
+
+- **Conditional classes**: Easily add classes based on conditions
+- **Class merging**: Automatically resolves conflicting Tailwind classes
+- **Override defaults**: Later classes override earlier ones
+
+### Examples
+
+#### Basic Usage
+
+```tsx
+import { cn } from "@/lib/utils"
+
+const classes = cn(
+  "px-4 py-2 bg-primary", // base classes
+  "hover:bg-primary/90"   // hover state
+)
+```
+
+#### Conditional Classes
+
+```tsx
+const buttonClasses = cn(
+  "px-4 py-2 rounded-md",
+  isActive && "bg-primary text-white",
+  isDisabled && "opacity-50 cursor-not-allowed"
+)
+```
+
+#### Overriding Defaults
+
+```tsx
+// Component default: "px-4 py-2"
+// Your className: "px-6 py-3"
+// Result: "py-2 px-6 py-3" → "px-6 py-3" (merged)
+
+<Button className="px-6 py-3">Custom Padding</Button>
+```
+
+## Customizing Components
+
+### Method 1: Using className Prop
+
+The simplest way to customize components is through the `className` prop:
+
+```tsx
+import { Button } from "@/components/ui/button"
+import { AccessGate } from "@/components/ui/access-manager"
+
+function Example() {
+  return (
+    <AccessGate
+      className="rounded-xl border-2 border-primary p-6"
+      roles="admin"
+    >
+      <Button className="bg-gradient-to-r from-blue-500 to-purple-500">
+        Custom Styled Button
+      </Button>
+    </AccessGate>
+  )
+}
+```
+
+### Method 2: Wrapping Components
+
+Create wrapper components for consistent customization:
+
+```tsx
+import { Button, ButtonProps } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+
+export function PrimaryButton({ className, ...props }: ButtonProps) {
+  return (
+    <Button
+      className={cn(
+        "bg-gradient-to-r from-indigo-500 to-purple-600",
+        "hover:from-indigo-600 hover:to-purple-700",
+        "text-white font-semibold",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+```
+
+### Method 3: Modifying Source Files
+
+Since RigidUI components are copied to your project, you can directly modify them:
+
+```tsx title="components/ui/access-manager.tsx"
+// Find the component in your project
+export function AccessGate({ className, ...props }: AccessGateProps) {
+  return (
+    <div className={cn(
+      "border border-border rounded-lg", // default styles
+      "bg-card text-card-foreground",    // theme-aware colors
+      className
+    )}>
+      {/* ... */}
+    </div>
+  )
+}
+```
+
+## Customization Patterns
+
+### Responsive Design
+
+Use Tailwind's responsive prefixes to customize at different breakpoints:
+
+```tsx
+<ContentGrid
+  className="
+    grid-cols-1
+    sm:grid-cols-2
+    lg:grid-cols-3
+    xl:grid-cols-4
+    gap-4
+    md:gap-6
+  "
+>
+  {/* ... */}
+</ContentGrid>
+```
+
+### Component Variants
+
+Create variant props for common customizations:
+
+```tsx
+interface CardProps {
+  variant?: 'default' | 'bordered' | 'elevated'
+  className?: string
+}
+
+function Card({ variant = 'default', className, ...props }: CardProps) {
+  return (
+    <div
+      className={cn(
+        'rounded-lg p-4',
+        {
+          'bg-card': variant === 'default',
+          'border-2 border-primary': variant === 'bordered',
+          'shadow-lg': variant === 'elevated',
+        },
+        className
+      )}
+      {...props}
+    />
+  )
+}
+```
+
+### Compound Components
+
+Customize nested components individually:
+
+```tsx
+import { SmartForm, SmartFormField } from "@/components/ui/smart-form"
+
+<SmartForm
+  schema={schema}
+  mutationFn={submitData}
+  className="max-w-2xl mx-auto"
+>
+  {(form) => (
+    <>
+      <SmartFormField
+        form={form}
+        name="email"
+        type="email"
+        className="mb-4"
+      />
+      <SmartFormField
+        form={form}
+        name="password"
+        type="password"
+        className="mb-6"
+      />
+    </>
+  )}
+</SmartForm>
+```
+
+## Component-Specific Customization
+
+### AccessGate with Custom Fallback
+
+```tsx
+import { AccessGate } from "@/components/ui/access-manager"
+
+<AccessGate
+  roles="admin"
+  className="transition-all duration-300"
+  disabledClassName="grayscale"
+  mode="disable"
+  fallback={
+    <div className="rounded-lg border-2 border-dashed border-muted p-8 text-center">
+      <p className="text-muted-foreground">You need admin access</p>
+    </div>
+  }
+>
+  {/* Protected content */}
+</AccessGate>
+```
+
+### Notification Center Styling
+
+```tsx
+import { NotificationCenter } from "@/components/ui/notification-center"
+
+<NotificationCenter
+  className="
+    max-h-[600px]
+    w-full
+    sm:w-[400px]
+    bg-background/95
+    backdrop-blur
+    supports-[backdrop-filter]:bg-background/80
+  "
+  notifications={notifications}
+/>
+```
+
+### Form Components
+
+```tsx
+import { MultiStepFormWrapper } from "@/components/ui/multi-step-form-wrapper"
+
+<MultiStepFormWrapper
+  steps={steps}
+  onComplete={handleComplete}
+  className="max-w-4xl mx-auto"
+  stepIndicatorClassName="mb-8"
+  navigationClassName="mt-8 flex justify-between"
+/>
+```
+
+## Best Practices
+
+### 1. Use CSS Variables for Dynamic Styles
+
+Leverage Tailwind's arbitrary values with CSS variables:
+
+```tsx
+<div
+  className="bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]"
+  style={{ '--custom-size': '48px' } as React.CSSProperties}
+>
+  Content
+</div>
+```
+
+### 2. Keep Modifications Maintainable
+
+When modifying source files, add comments:
+
+```tsx
+export function CustomComponent({ className, ...props }: Props) {
+  return (
+    <div className={cn(
+      // Default RigidUI styles
+      "rounded-lg border",
+      // Custom project styles - Added 2024-03-03
+      "shadow-xl backdrop-blur-sm",
+      className
+    )}>
+      {/* ... */}
+    </div>
+  )
+}
+```
+
+### 3. Extract Common Patterns
+
+Create utility functions for repeated customizations:
+
+```tsx
+function getCardClasses(elevated?: boolean) {
+  return cn(
+    "rounded-lg p-6 bg-card",
+    elevated && "shadow-lg border-2 border-primary/20"
+  )
+}
+```
+
+### 4. Use Tailwind Config for Global Changes
+
+Extend Tailwind configuration for project-wide customizations:
+
+```js title="tailwind.config.js"
+module.exports = {
+  theme: {
+    extend: {
+      borderRadius: {
+        'lg': '12px',
+      },
+      spacing: {
+        '18': '4.5rem',
+      },
+    },
+  },
+}
+```
+
+## Accessibility Considerations
+
+When customizing components, maintain accessibility:
+
+```tsx
+// Good: Maintains contrast and focus states
+<Button className="
+  bg-primary hover:bg-primary/90
+  focus:ring-2 focus:ring-offset-2 focus:ring-primary
+  text-primary-foreground
+">
+  Accessible Button
+</Button>
+
+// Bad: Poor contrast and no focus state
+<Button className="bg-gray-400 text-gray-300">
+  Low Contrast Button
+</Button>
+```
+
+## Next Steps
+
+- Learn about [Theming](/guides/theming) to customize colors and design tokens
+- Explore [TypeScript](/guides/typescript) usage for type-safe customization
+- Check out individual [component documentation](/components) for specific customization options

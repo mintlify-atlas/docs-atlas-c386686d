@@ -1,0 +1,253 @@
+---
+title: Development
+description: Development setup, running locally, building, and testing RigidUI
+---
+
+This guide covers everything you need to set up a local development environment for RigidUI.
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Node.js** 20.x or later
+- **pnpm** 9.15.2 or later (recommended package manager)
+- **Git** for version control
+
+## Development Setup
+
+<Steps>
+
+### Clone the Repository
+
+Fork and clone the RigidUI repository:
+
+```bash
+git clone https://github.com/fgrreloaded/rigidui.git
+cd rigidui
+```
+
+### Install Dependencies
+
+Install all project dependencies using pnpm:
+
+```bash
+pnpm install
+```
+
+This will install dependencies for all packages in the monorepo.
+
+### Start Development Server
+
+Start the development server with hot reload:
+
+```bash
+pnpm run dev
+```
+
+The development server will start with Turbopack for faster builds. Visit `http://localhost:3000` to see your changes in real-time.
+
+</Steps>
+
+## Available Scripts
+
+The monorepo provides several npm scripts for development:
+
+### Development
+
+```bash
+pnpm run dev
+```
+
+Starts the development server with Turbopack for all packages in the monorepo.
+
+### Build
+
+```bash
+pnpm run build
+```
+
+Builds all packages in the monorepo for production. This includes:
+
+- Next.js application build
+- Component registry build
+- Type checking
+
+### Build Registry
+
+```bash
+pnpm run registry:build
+```
+
+Builds the component registry using the shadcn CLI.
+
+### Lint
+
+```bash
+pnpm run lint
+```
+
+Runs ESLint across all packages to check for code quality issues.
+
+### Type Check
+
+```bash
+pnpm run type-check
+```
+
+Runs TypeScript compiler to check for type errors without emitting files.
+
+### Clean
+
+```bash
+pnpm run clean
+```
+
+Cleans build artifacts and cache files from all packages.
+
+## Monorepo Structure
+
+RigidUI uses Turbo for efficient monorepo management:
+
+```json
+{
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "type-check": {
+      "dependsOn": ["^type-check"]
+    }
+  }
+}
+```
+
+### Package Structure
+
+- **apps/web** - Main Next.js application and documentation site
+- **registry/** - Component registry with all RigidUI components
+- **lib/** - Shared utilities and hooks
+
+## Development Workflow
+
+### Making Changes
+
+1. Create a new branch for your feature or fix
+2. Make your changes to components or documentation
+3. Test your changes locally using `pnpm run dev`
+4. Run type checking with `pnpm run type-check`
+5. Run linting with `pnpm run lint`
+
+### Testing Components
+
+Test your components by:
+
+1. Creating demo files in the component directory
+2. Adding the component to the documentation site
+3. Testing in both light and dark modes
+4. Testing across different screen sizes
+5. Verifying keyboard navigation and accessibility
+
+### Building for Production
+
+Before submitting a pull request:
+
+<Steps>
+
+### Run Type Check
+
+```bash
+pnpm run type-check
+```
+
+Ensure there are no TypeScript errors.
+
+### Run Linting
+
+```bash
+pnpm run lint
+```
+
+Fix any linting issues reported.
+
+### Build the Project
+
+```bash
+pnpm run build
+```
+
+Verify the project builds successfully.
+
+### Test the Build
+
+```bash
+pnpm run start
+```
+
+Test the production build locally at `http://localhost:3000`.
+
+</Steps>
+
+## Environment Configuration
+
+RigidUI uses the following key technologies:
+
+### Core Dependencies
+
+- **Next.js 15** - React framework with App Router
+- **React 19** - UI library
+- **TypeScript 5** - Type safety
+- **Tailwind CSS 4** - Styling
+- **shadcn/ui** - Base component library
+
+### Key Libraries
+
+- **Fumadocs** - Documentation system
+- **TanStack Query** - Data fetching and state management
+- **Radix UI** - Accessible component primitives
+- **Zod** - Schema validation
+- **Motion** - Animation library
+- **@dnd-kit** - Drag and drop functionality
+
+## Troubleshooting
+
+### Port Already in Use
+
+If port 3000 is already in use, specify a different port:
+
+```bash
+pnpm run dev -- -p 3001
+```
+
+### Cache Issues
+
+If you encounter build issues, clear the cache:
+
+```bash
+pnpm run clean
+rm -rf node_modules
+pnpm install
+```
+
+### Type Errors
+
+Run type checking to identify issues:
+
+```bash
+pnpm run type-check
+```
+
+## Next Steps
+
+Now that you have your development environment set up:
+
+- Read the [Contributing Guide](/guides/contributing) to learn how to contribute
+- Explore the [component documentation](/components) for examples
+- Check the [GitHub repository](https://github.com/FgrReloaded/rigidui) for issues and discussions

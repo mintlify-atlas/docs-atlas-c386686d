@@ -1,0 +1,386 @@
+---
+title: Location Picker
+description: Geographic location selection with map integration and search functionality
+---
+
+## Overview
+
+The Location Picker component provides an intuitive interface for selecting geographic locations. It includes real-time search suggestions, auto-detection using browser geolocation, and support for both popover and inline display modes.
+
+## Installation
+
+<Tabs>
+  <Tab title="Web">
+    ```bash
+    npx shadcn@latest add https://rigidui.com/r/location-picker.json
+    ```
+  </Tab>
+  <Tab title="React Native">
+    ```bash
+    npx shadcn@latest add https://rigidui.com/r/location-picker-rn.json
+    ```
+    
+    <Note>
+    React Native variant uses native geolocation APIs and mobile-optimized UI.
+    </Note>
+  </Tab>
+</Tabs>
+
+## Features
+
+- Real-time location search with suggestions
+- Auto-detect current location using geolocation
+- Two display variants: popover and inline
+- OpenStreetMap integration (no API key required)
+- Debounced search for performance
+- Error handling for geolocation permissions
+- Accessible with ARIA attributes
+
+## API Reference
+
+### LocationPicker Props
+
+<ParamField path="className" type="string">
+  Additional CSS classes for the container
+</ParamField>
+
+<ParamField path="autoDetectOnLoad" type="boolean" default="false">
+  Automatically detect user's location when component mounts
+</ParamField>
+
+<ParamField path="defaultLocation" type="string" default="''">
+  Initial location to display
+</ParamField>
+
+<ParamField path="onChange" type="(location: string) => void">
+  Callback fired when location changes
+</ParamField>
+
+<ParamField path="variant" type="'popover' | 'inline'" default="'popover'">
+  Display mode - popover for compact display, inline for full-width
+</ParamField>
+
+<ParamField path="placeholder" type="string" default="'Enter city, district, or area'">
+  Placeholder text for the search input
+</ParamField>
+
+## Usage Examples
+
+### Basic Popover Variant
+
+```tsx
+import { LocationPicker } from '@/components/ui/location-picker'
+
+function Header() {
+  return (
+    <header className="flex items-center justify-between p-4">
+      <h1>My App</h1>
+      <LocationPicker
+        onChange={(location) => console.log('Selected:', location)}
+      />
+    </header>
+  )
+}
+```
+
+### Inline Variant
+
+```tsx
+import { LocationPicker } from '@/components/ui/location-picker'
+
+function LocationForm() {
+  return (
+    <div className="space-y-4">
+      <label className="text-sm font-medium">Select Location</label>
+      <LocationPicker
+        variant="inline"
+        placeholder="Search for your city..."
+        onChange={(location) => {
+          console.log('Location selected:', location)
+        }}
+      />
+    </div>
+  )
+}
+```
+
+### Auto-Detect Location on Load
+
+```tsx
+import { LocationPicker } from '@/components/ui/location-picker'
+
+function DeliveryLocation() {
+  return (
+    <LocationPicker
+      autoDetectOnLoad={true}
+      onChange={(location) => {
+        // Update delivery location in state/API
+        updateDeliveryLocation(location)
+      }}
+    />
+  )
+}
+```
+
+### With Default Location
+
+```tsx
+import { LocationPicker } from '@/components/ui/location-picker'
+
+function UserSettings({ user }) {
+  return (
+    <div>
+      <h2>Your Location</h2>
+      <LocationPicker
+        defaultLocation={user.city}
+        variant="inline"
+        onChange={(location) => {
+          // Save to user preferences
+          saveUserLocation(location)
+        }}
+      />
+    </div>
+  )
+}
+```
+
+### E-commerce Store Locator
+
+```tsx
+import { LocationPicker } from '@/components/ui/location-picker'
+import { useState } from 'react'
+
+function StoreLocator() {
+  const [selectedCity, setSelectedCity] = useState('')
+  const [nearbyStores, setNearbyStores] = useState([])
+
+  const handleLocationChange = async (city: string) => {
+    setSelectedCity(city)
+    
+    // Fetch nearby stores
+    const stores = await fetchStoresByCity(city)
+    setNearbyStores(stores)
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold mb-4">Find Stores Near You</h2>
+        <LocationPicker
+          variant="inline"
+          autoDetectOnLoad={true}
+          onChange={handleLocationChange}
+          placeholder="Enter your city to find nearby stores"
+        />
+      </div>
+
+      {selectedCity && (
+        <div>
+          <h3 className="text-xl font-semibold mb-2">
+            Stores in {selectedCity}
+          </h3>
+          <div className="space-y-2">
+            {nearbyStores.map(store => (
+              <Card key={store.id}>
+                <CardContent className="p-4">
+                  <h4 className="font-semibold">{store.name}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {store.address}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+```
+
+### Food Delivery App
+
+```tsx
+import { LocationPicker } from '@/components/ui/location-picker'
+import { MapPin } from 'lucide-react'
+import { useState } from 'react'
+
+function DeliveryAddress() {
+  const [deliveryLocation, setDeliveryLocation] = useState('')
+  const [showForm, setShowForm] = useState(false)
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <MapPin className="h-5 w-5 text-primary" />
+        <h2 className="text-lg font-semibold">Delivery Location</h2>
+      </div>
+
+      <LocationPicker
+        variant="inline"
+        autoDetectOnLoad={true}
+        onChange={(location) => {
+          setDeliveryLocation(location)
+          setShowForm(true)
+        }}
+      />
+
+      {showForm && deliveryLocation && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Complete Your Address</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">City</label>
+              <Input value={deliveryLocation} disabled />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Street Address</label>
+              <Input placeholder="House number, street name" />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Landmark (Optional)</label>
+              <Input placeholder="Near park, mall, etc." />
+            </div>
+            <Button className="w-full">Save Address</Button>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  )
+}
+```
+
+### Real Estate Search
+
+```tsx
+import { LocationPicker } from '@/components/ui/location-picker'
+import { useState } from 'react'
+
+function PropertySearch() {
+  const [searchLocation, setSearchLocation] = useState('')
+  const [properties, setProperties] = useState([])
+
+  const searchProperties = async (location: string) => {
+    setSearchLocation(location)
+    const results = await fetch(`/api/properties?location=${location}`)
+    setProperties(await results.json())
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardContent className="pt-6">
+          <LocationPicker
+            variant="inline"
+            placeholder="Search for properties in..."
+            onChange={searchProperties}
+          />
+        </CardContent>
+      </Card>
+
+      {properties.length > 0 && (
+        <div>
+          <h3 className="text-xl font-bold mb-4">
+            {properties.length} properties in {searchLocation}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {properties.map(property => (
+              <PropertyCard key={property.id} property={property} />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+```
+
+### Multi-Step Form
+
+```tsx
+import { LocationPicker } from '@/components/ui/location-picker'
+import { useState } from 'react'
+
+function SignupForm() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    location: ''
+  })
+
+  return (
+    <form className="space-y-6">
+      <div>
+        <label>Full Name</label>
+        <Input
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+        />
+      </div>
+
+      <div>
+        <label>Email</label>
+        <Input
+          type="email"
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+        />
+      </div>
+
+      <div>
+        <label>Location</label>
+        <LocationPicker
+          variant="inline"
+          autoDetectOnLoad={true}
+          onChange={(location) => {
+            setFormData({ ...formData, location })
+          }}
+        />
+      </div>
+
+      <Button type="submit" className="w-full">
+        Create Account
+      </Button>
+    </form>
+  )
+}
+```
+
+## Location Search
+
+The component uses OpenStreetMap's Nominatim API for geocoding:
+
+- **Search**: Finds locations matching user input
+- **Reverse Geocoding**: Converts coordinates to city names
+- **No API Key**: Free to use without authentication
+- **Rate Limits**: Please use responsibly
+
+## Geolocation Permissions
+
+The component handles various geolocation states:
+
+- **Permission Granted**: Location detected successfully
+- **Permission Denied**: Shows error message
+- **Position Unavailable**: GPS/network issues
+- **Timeout**: Request took too long
+
+## Accessibility
+
+- ARIA labels for search input and suggestions
+- Keyboard navigation support
+- Focus management
+- Screen reader friendly error messages
+
+<Note>
+The component uses OpenStreetMap's Nominatim API which is free but has usage limits. For production applications with high traffic, consider using a paid geocoding service or hosting your own Nominatim instance.
+</Note>
+
+<Tip>
+Enable `autoDetectOnLoad` for delivery or location-based services to improve user experience by automatically detecting their location.
+</Tip>
+
+<Warning>
+Geolocation requires HTTPS in production. It will not work on HTTP sites (except localhost). Users must also grant permission for location access.
+</Warning>

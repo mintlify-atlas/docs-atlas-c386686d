@@ -1,0 +1,347 @@
+---
+title: Text Shift
+description: A text shift animation component to showcase two different texts with smooth transition on hover
+---
+
+<ComponentPreview name="text-shift-demo" />
+
+## Installation
+
+<Tabs defaultValue="cli">
+
+<TabsContent value="cli">
+
+```bash
+npx rigidui@latest add text-shift
+```
+
+</TabsContent>
+
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Install the motion dependency:</Step>
+
+```bash
+npm install motion
+```
+
+<Step>Copy and paste the following code into your project.</Step>
+
+<ComponentSource name="text-shift" />
+
+</Steps>
+
+</TabsContent>
+
+</Tabs>
+
+## Usage
+
+```tsx
+import TextShift from "@/components/ui/text-shift"
+
+export default function Example() {
+  return (
+    <TextShift 
+      primaryText="HOVER ME" 
+      secondaryText="GOODBYE" 
+    />
+  )
+}
+```
+
+## Examples
+
+### Basic Usage
+
+```tsx
+<TextShift 
+  primaryText="HELLO" 
+  secondaryText="WORLD" 
+/>
+```
+
+### Custom Colors
+
+```tsx
+<TextShift 
+  primaryText="BEFORE"
+  secondaryText="AFTER"
+  primaryTextColor="text-blue-600"
+  secondaryTextColor="text-purple-600"
+/>
+```
+
+### Custom Animation Timing
+
+```tsx
+<TextShift 
+  primaryText="SLOW"
+  secondaryText="MOTION"
+  duration={1.5}
+  staggerDelay={0.1}
+/>
+```
+
+### Fast Animation
+
+```tsx
+<TextShift 
+  primaryText="QUICK"
+  secondaryText="SHIFT"
+  duration={0.4}
+  staggerDelay={0.02}
+/>
+```
+
+### Custom Easing
+
+```tsx
+<TextShift 
+  primaryText="BOUNCE"
+  secondaryText="EFFECT"
+  easing={[0.34, 1.56, 0.64, 1]}
+/>
+```
+
+### Large Text with Styling
+
+```tsx
+<TextShift 
+  primaryText="AMAZING"
+  secondaryText="EFFECT"
+  className="text-6xl tracking-wider"
+  primaryTextColor="text-black dark:text-white"
+  secondaryTextColor="text-gray-500 dark:text-gray-400"
+/>
+```
+
+## API Reference
+
+### TextShift
+
+<ParamField path="primaryText" type="string" required>
+  Initial text displayed before hover
+</ParamField>
+
+<ParamField path="secondaryText" type="string" required>
+  Text displayed on hover
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes for the container (font size, spacing, etc.)
+</ParamField>
+
+<ParamField path="primaryTextColor" type="string" default="'text-black'">
+  Tailwind color class for primary text
+</ParamField>
+
+<ParamField path="secondaryTextColor" type="string" default="'text-gray-400'">
+  Tailwind color class for secondary text
+</ParamField>
+
+<ParamField path="duration" type="number" default="1">
+  Animation duration in seconds per letter
+</ParamField>
+
+<ParamField path="staggerDelay" type="number" default="0.05">
+  Delay in seconds between each letter animation
+</ParamField>
+
+<ParamField path="easing" type="Easing" default="[0.165, 0.84, 0.44, 1]">
+  Custom easing curve array (cubic bezier values)
+</ParamField>
+
+## Animation Details
+
+### Primary Text Animation (on hover)
+
+```tsx
+{
+  y: "-100%",    // Slides up out of view
+  opacity: 0.8   // Fades slightly
+}
+```
+
+### Secondary Text Animation (on hover)
+
+```tsx
+{
+  y: "0%",       // Slides into view from below
+  opacity: 1     // Fully visible
+}
+```
+
+### Letter Stagger Effect
+
+Each letter animates with a delay calculated as:
+
+```ts
+delay = index * staggerDelay
+```
+
+For example, with default `staggerDelay` of 0.05s:
+- Letter 0: 0s delay
+- Letter 1: 0.05s delay
+- Letter 2: 0.10s delay
+- Letter 3: 0.15s delay
+
+<Callout type="info">
+  The stagger effect creates a wave-like animation as letters shift sequentially. Adjust `staggerDelay` to control the wave speed.
+</Callout>
+
+## Easing Curves
+
+### Default Easing
+
+The default easing curve `[0.165, 0.84, 0.44, 1]` provides a smooth, natural motion.
+
+### Custom Easing Examples
+
+```tsx
+// Bouncy effect
+easing={[0.68, -0.55, 0.265, 1.55]}
+
+// Quick snap
+easing={[0.95, 0.05, 0.795, 0.035]}
+
+// Elastic
+easing={[0.34, 1.56, 0.64, 1]}
+
+// Smooth ease-in-out
+easing={[0.45, 0, 0.55, 1]}
+```
+
+<Callout type="tip">
+  Use [cubic-bezier.com](https://cubic-bezier.com) to visualize and create custom easing curves.
+</Callout>
+
+## Styling Tips
+
+### Font Size and Spacing
+
+```tsx
+<TextShift 
+  primaryText="LARGE"
+  secondaryText="TEXT"
+  className="text-8xl font-black tracking-widest"
+/>
+```
+
+### Gradient Text
+
+```tsx
+<TextShift 
+  primaryText="GRADIENT"
+  secondaryText="EFFECT"
+  primaryTextColor="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent"
+  secondaryTextColor="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent"
+/>
+```
+
+### Dark Mode Support
+
+```tsx
+<TextShift 
+  primaryText="THEME"
+  secondaryText="AWARE"
+  primaryTextColor="text-black dark:text-white"
+  secondaryTextColor="text-gray-600 dark:text-gray-400"
+  className="text-4xl font-bold"
+/>
+```
+
+### Centered Text
+
+```tsx
+<div className="flex justify-center items-center h-screen">
+  <TextShift 
+    primaryText="CENTER"
+    secondaryText="STAGE"
+    className="text-7xl font-extrabold"
+  />
+</div>
+```
+
+## Advanced Examples
+
+### Multi-Line Effect
+
+```tsx
+<div className="space-y-2">
+  <TextShift 
+    primaryText="HELLO"
+    secondaryText="BONJOUR"
+    className="text-5xl font-bold"
+  />
+  <TextShift 
+    primaryText="WORLD"
+    secondaryText="MONDE"
+    className="text-5xl font-bold"
+    staggerDelay={0.03}
+  />
+</div>
+```
+
+### Button Integration
+
+```tsx
+<button className="px-8 py-4 bg-black rounded-lg hover:bg-gray-900 transition-colors">
+  <TextShift 
+    primaryText="CLICK ME"
+    secondaryText="LET'S GO"
+    primaryTextColor="text-white"
+    secondaryTextColor="text-green-400"
+    duration={0.6}
+  />
+</button>
+```
+
+### Card Header
+
+```tsx
+<div className="p-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl">
+  <TextShift 
+    primaryText="EXPLORE"
+    secondaryText="DISCOVER"
+    primaryTextColor="text-white"
+    secondaryTextColor="text-indigo-200"
+    className="text-6xl font-black"
+  />
+</div>
+```
+
+## Performance Considerations
+
+<Callout>
+  The component splits text into individual letters, creating separate motion components for each character. For very long text, consider using shorter phrases for optimal performance.
+</Callout>
+
+### Best Practices
+
+1. **Keep text concise**: Works best with 1-15 characters
+2. **Use uppercase**: Uppercase text often looks better with this effect
+3. **Adjust stagger for length**: Shorter delays for longer words
+4. **Test on mobile**: Ensure hover alternatives for touch devices
+
+<Callout type="warning">
+  On touch devices, the hover state is triggered on tap. Consider adding a tap-away behavior or auto-reset for better UX on mobile.
+</Callout>
+
+## Accessibility
+
+- Uses semantic HTML structure
+- Keyboard accessible (hover state triggered on focus)
+- Screen readers will read the primary text
+- `cursor-pointer` indicates interactivity
+
+## Browser Support
+
+Requires support for:
+- CSS transforms
+- Motion/React animations
+- Modern JavaScript (ES6+)
+
+Compatible with all modern browsers (Chrome, Firefox, Safari, Edge).

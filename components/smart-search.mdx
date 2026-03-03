@@ -1,0 +1,405 @@
+---
+title: Smart Search
+description: Advanced search component with real-time results, filters, history, and keyboard navigation
+---
+
+## Overview
+
+The Smart Search component provides a powerful search experience with real-time suggestions, search history, customizable filters, URL synchronization, and comprehensive keyboard navigation.
+
+## Installation
+
+```bash
+npx shadcn@latest add https://rigidui.com/r/smart-search.json
+```
+
+## Dependencies
+
+This component requires:
+
+```bash
+npm install @tanstack/react-pacer next
+```
+
+## Features
+
+- Real-time search with debouncing
+- Search suggestions
+- Search history tracking
+- Customizable filters
+- URL synchronization
+- Keyboard shortcuts (Ctrl+/ to focus)
+- Keyboard navigation (arrows, enter, escape)
+- Loading states
+- Result count display
+- Filter parsing (e.g., "category:books author:smith")
+
+## API Reference
+
+### SmartSearch Props
+
+<ParamField path="className" type="string">
+  Additional CSS classes for the container
+</ParamField>
+
+<ParamField path="placeholder" type="string" default="'Search...'">
+  Placeholder text for the search input
+</ParamField>
+
+<ParamField path="debounceMs" type="number" default="300">
+  Milliseconds to wait before triggering search
+</ParamField>
+
+<ParamField path="urlSync" type="boolean" default="true">
+  Whether to sync search query with URL parameters
+</ParamField>
+
+<ParamField path="onSearch" type="(query: string, filters?: string[]) => void">
+  Callback fired when search is executed
+</ParamField>
+
+<ParamField path="searchHistory" type="boolean" default="false">
+  Enable search history tracking in localStorage
+</ParamField>
+
+<ParamField path="suggestions" type="string[]" default="[]">
+  Array of search suggestions to display
+</ParamField>
+
+<ParamField path="onSuggestionSelect" type="(suggestion: string) => void">
+  Callback when a suggestion is selected
+</ParamField>
+
+<ParamField path="searchFilters" type="SearchFilter[]" default="[]">
+  Array of filter options
+</ParamField>
+
+<ParamField path="onFilterChange" type="(filters: string[]) => void">
+  Callback when active filters change
+</ParamField>
+
+<ParamField path="resultCount" type="number">
+  Number of results to display in badge
+</ParamField>
+
+<ParamField path="maxHistoryItems" type="number" default="10">
+  Maximum number of history items to store
+</ParamField>
+
+### SearchFilter Interface
+
+<ParamField path="key" type="string" required>
+  Unique identifier for the filter
+</ParamField>
+
+<ParamField path="label" type="string" required>
+  Display label for the filter
+</ParamField>
+
+<ParamField path="icon" type="ReactNode">
+  Optional icon to display with the filter
+</ParamField>
+
+## Usage Examples
+
+### Basic Search
+
+```tsx
+import { SmartSearch } from '@/components/ui/smart-search'
+import { useState } from 'react'
+
+function SearchPage() {
+  const [results, setResults] = useState([])
+
+  const handleSearch = async (query: string) => {
+    const response = await fetch(`/api/search?q=${query}`)
+    const data = await response.json()
+    setResults(data)
+  }
+
+  return (
+    <div>
+      <SmartSearch
+        placeholder="Search products..."
+        onSearch={handleSearch}
+      />
+      
+      <div className="mt-4">
+        {results.map(item => (
+          <div key={item.id}>{item.name}</div>
+        ))}
+      </div>
+    </div>
+  )
+}
+```
+
+### With Suggestions
+
+```tsx
+import { SmartSearch } from '@/components/ui/smart-search'
+
+const popularSearches = [
+  'React components',
+  'Next.js tutorial',
+  'TypeScript guide',
+  'Tailwind CSS',
+]
+
+function DocumentationSearch() {
+  return (
+    <SmartSearch
+      placeholder="Search documentation..."
+      suggestions={popularSearches}
+      onSuggestionSelect={(suggestion) => {
+        console.log('Selected:', suggestion)
+      }}
+      onSearch={(query) => {
+        // Perform search
+      }}
+    />
+  )
+}
+```
+
+### With Search History
+
+```tsx
+import { SmartSearch } from '@/components/ui/smart-search'
+
+function BlogSearch() {
+  return (
+    <SmartSearch
+      placeholder="Search articles..."
+      searchHistory={true}
+      maxHistoryItems={5}
+      onSearch={(query) => {
+        searchArticles(query)
+      }}
+    />
+  )
+}
+```
+
+### With Filters
+
+```tsx
+import { SmartSearch } from '@/components/ui/smart-search'
+import { FileText, Video, Image } from 'lucide-react'
+
+const filters = [
+  { key: 'articles', label: 'Articles', icon: <FileText /> },
+  { key: 'videos', label: 'Videos', icon: <Video /> },
+  { key: 'images', label: 'Images', icon: <Image /> },
+]
+
+function MediaSearch() {
+  const [activeFilters, setActiveFilters] = useState<string[]>([])
+
+  return (
+    <SmartSearch
+      placeholder="Search media..."
+      searchFilters={filters}
+      onFilterChange={setActiveFilters}
+      onSearch={(query, filters) => {
+        console.log('Search:', query, 'Filters:', filters)
+        // Perform filtered search
+      }}
+    />
+  )
+}
+```
+
+### With Result Count
+
+```tsx
+import { SmartSearch } from '@/components/ui/smart-search'
+import { useState } from 'react'
+
+function ProductSearch() {
+  const [products, setProducts] = useState([])
+
+  const handleSearch = async (query: string) => {
+    const response = await fetch(`/api/products?search=${query}`)
+    const data = await response.json()
+    setProducts(data)
+  }
+
+  return (
+    <SmartSearch
+      placeholder="Search products..."
+      onSearch={handleSearch}
+      resultCount={products.length}
+    />
+  )
+}
+```
+
+### Complete E-commerce Example
+
+```tsx
+import { SmartSearch } from '@/components/ui/smart-search'
+import { useState, useEffect } from 'react'
+import { Tag, Star, DollarSign } from 'lucide-react'
+
+const searchFilters = [
+  { key: 'category', label: 'Category', icon: <Tag /> },
+  { key: 'rating', label: 'Top Rated', icon: <Star /> },
+  { key: 'price', label: 'Price', icon: <DollarSign /> },
+]
+
+const popularSearches = [
+  'Wireless headphones',
+  'Running shoes',
+  'Coffee maker',
+  'Desk lamp',
+]
+
+function ProductCatalog() {
+  const [products, setProducts] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [filters, setFilters] = useState<string[]>([])
+
+  const searchProducts = async (query: string, activeFilters: string[] = []) => {
+    setIsLoading(true)
+    try {
+      const params = new URLSearchParams({
+        q: query,
+        ...Object.fromEntries(activeFilters.map(f => [f, 'true']))
+      })
+      
+      const response = await fetch(`/api/products?${params}`)
+      const data = await response.json()
+      setProducts(data)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Product Catalog</h1>
+      
+      <SmartSearch
+        placeholder="Search for products..."
+        searchHistory={true}
+        suggestions={popularSearches}
+        searchFilters={searchFilters}
+        onSearch={searchProducts}
+        onFilterChange={setFilters}
+        resultCount={products.length}
+        debounceMs={400}
+      />
+
+      <div className="mt-6">
+        {isLoading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
+            <p className="mt-2 text-muted-foreground">Searching...</p>
+          </div>
+        ) : products.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {products.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            No products found
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+```
+
+### Advanced Filter Parsing
+
+```tsx
+import { SmartSearch } from '@/components/ui/smart-search'
+
+// Supports parsing filters from query:
+// "laptop category:electronics price:500-1000"
+
+function AdvancedSearch() {
+  const handleSearch = (query: string, filters: string[]) => {
+    console.log('Query:', query)
+    console.log('Parsed filters:', filters)
+    
+    // filters might contain: ['category:electronics', 'price:500-1000']
+    // query will be: 'laptop'
+  }
+
+  return (
+    <SmartSearch
+      placeholder="Try: laptop category:electronics"
+      onSearch={handleSearch}
+    />
+  )
+}
+```
+
+### Without URL Sync
+
+```tsx
+import { SmartSearch } from '@/components/ui/smart-search'
+
+function ModalSearch() {
+  return (
+    <Dialog>
+      <DialogContent>
+        <SmartSearch
+          placeholder="Search..."
+          urlSync={false} // Don't modify URL in modal
+          onSearch={(query) => {
+            // Handle search
+          }}
+        />
+      </DialogContent>
+    </Dialog>
+  )
+}
+```
+
+## Keyboard Shortcuts
+
+- **Ctrl+/ or Cmd+/**: Focus search input
+- **Arrow Down**: Navigate suggestions down
+- **Arrow Up**: Navigate suggestions up  
+- **Enter**: Select highlighted suggestion or search
+- **Escape**: Close suggestions and blur input
+
+## Search States
+
+The component visually indicates different states:
+
+- **Idle**: Gray search icon
+- **Searching**: Blue animated icon
+- **Success**: Green icon (brief flash)
+- **Error**: Red icon
+
+## URL Synchronization
+
+When `urlSync={true}`, the search query is synced with the URL:
+
+```
+/products?q=laptop
+```
+
+This enables:
+- Shareable search URLs
+- Browser back/forward navigation
+- Bookmark searches
+
+<Note>
+Search history is stored in localStorage under the key `smart-search-history`. It's automatically cleaned to keep only the most recent items based on `maxHistoryItems`.
+</Note>
+
+<Tip>
+Combine `searchHistory` and `suggestions` for the best user experience. History shows personalized recent searches, while suggestions show popular or recommended queries.
+</Tip>
+
+<Warning>
+The component requires Next.js for URL synchronization (`useRouter`, `useSearchParams`). If you're not using Next.js, set `urlSync={false}`.
+</Warning>

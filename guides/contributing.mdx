@@ -1,0 +1,262 @@
+---
+title: Contributing
+description: Guidelines and instructions for contributing to RigidUI
+---
+
+Thank you for your interest in contributing to RigidUI! This guide provides guidelines and instructions for contributing to this project.
+
+## Component Guidelines
+
+When developing components for RigidUI, please follow these guidelines:
+
+- **Self-contained** - Components should be self-contained with minimal external dependencies
+- **Accessible** - Follow WAI-ARIA guidelines and ensure keyboard navigation works
+- **Responsive** - Components should work well on all screen sizes
+- **Customizable** - Use Tailwind CSS classes and accept className props
+- **TypeScript** - Write proper TypeScript types for all props and functions
+- **Dark Mode** - Support both light and dark modes
+- **Documentation** - Include proper JSDoc comments and create demo files
+
+## Coding Standards
+
+All components must follow these standards:
+
+### TypeScript Types
+
+Use proper TypeScript interfaces for all component props:
+
+```tsx
+export interface YourComponentProps {
+  /** Description of prop */
+  someProp?: string;
+  /** Additional class names */
+  className?: string;
+  /** Children elements */
+  children?: React.ReactNode;
+}
+```
+
+### JSDoc Comments
+
+Include JSDoc comments for components and props:
+
+```tsx
+/**
+ * YourComponent - Description of what it does
+ */
+export function YourComponent({
+  someProp = "default",
+  className,
+  children,
+}: YourComponentProps) {
+  return (
+    <div className={cn("your-default-classes", className)}>
+      {children}
+    </div>
+  );
+}
+```
+
+### Commit Messages
+
+We follow [Conventional Commits](https://www.conventionalcommits.org/) for commit messages:
+
+- `feat:` - A new feature
+- `fix:` - A bug fix
+- `docs:` - Documentation changes
+- `style:` - Code style changes (formatting, etc.)
+- `refactor:` - Code changes that neither fix bugs nor add features
+- `perf:` - Performance improvements
+- `test:` - Adding or updating tests
+- `chore:` - Changes to the build process or auxiliary tools
+
+**Example:**
+
+```bash
+feat(currency-manager): add support for custom decimal places
+```
+
+## Pull Request Process
+
+<Steps>
+
+### Create a Branch
+
+Create a branch with a descriptive name:
+
+```bash
+git checkout -b feature/component-name
+```
+
+### Make Your Changes
+
+Follow the component guidelines and coding standards when making changes.
+
+### Test Your Changes
+
+Thoroughly test your changes across different browsers and screen sizes.
+
+### Update Documentation
+
+Update documentation if necessary, including JSDoc comments and demo files.
+
+### Create a Changeset
+
+Document your changes with a changeset:
+
+```bash
+npx changeset
+```
+
+Follow the prompts to describe your changes.
+
+### Commit Your Changes
+
+Commit following the commit guidelines:
+
+```bash
+git commit -m "feat(component-name): add new feature"
+```
+
+### Push Your Branch
+
+Push your branch to your fork:
+
+```bash
+git push origin feature/component-name
+```
+
+### Create a Pull Request
+
+Create a pull request to the `main` branch of the original repository.
+
+### Respond to Feedback
+
+Respond to feedback from maintainers if requested.
+
+</Steps>
+
+## Creating a New Component
+
+<Steps>
+
+### Create Component Directory
+
+Create a new directory in `registry/new-york/` with your component name:
+
+```bash
+mkdir -p registry/new-york/your-component
+```
+
+### Create Component File
+
+Create the main component file with TypeScript and JSDoc comments:
+
+```tsx
+// filepath: registry/new-york/your-component/your-component.tsx
+"use client";
+
+import React from "react";
+import { cn } from "@/lib/utils";
+
+export interface YourComponentProps {
+  /** Description of prop */
+  someProp?: string;
+  /** Additional class names */
+  className?: string;
+  /** Children elements */
+  children?: React.ReactNode;
+}
+
+/**
+ * YourComponent - Description of what it does
+ */
+export function YourComponent({
+  someProp = "default",
+  className,
+  children,
+}: YourComponentProps) {
+  return (
+    <div className={cn("your-default-classes", className)}>
+      {/* Component implementation */}
+      {children}
+    </div>
+  );
+}
+```
+
+### Create Demo File
+
+Create a demo file (optional but recommended):
+
+```tsx
+// filepath: registry/new-york/your-component/your-component-demo.tsx
+"use client";
+
+import React from "react";
+import { YourComponent } from "./your-component";
+
+export function YourComponentDemo() {
+  return (
+    <div className="space-y-8">
+      <YourComponent someProp="value">Demo content</YourComponent>
+
+      {/* Add more examples with different props */}
+    </div>
+  );
+}
+```
+
+### Update Registry
+
+Add your component to the registry by updating `registry.json`:
+
+```json
+{
+  "name": "your-component",
+  "type": "registry:component",
+  "title": "Your Component",
+  "description": "Description of your component",
+  "registryDependencies": [
+    "button" // Add any dependencies here
+  ],
+  "files": [
+    {
+      "path": "registry/new-york/your-component/your-component.tsx",
+      "type": "registry:component"
+    }
+  ],
+  "author": "Your Name <your.email@example.com>"
+}
+```
+
+### Create Documentation
+
+Create documentation in `app/docs/components/your-component/page.tsx` with usage examples and API references.
+
+</Steps>
+
+## Project Structure
+
+Understanding the project structure:
+
+```
+rigidui/
+├── app/                    # Next.js app directory
+│   ├── docs/               # Documentation pages
+│   ├── registry/           # Registry API route
+│   └── page.tsx            # Homepage
+├── components/             # Shared components
+├── registry/               # Registry components
+│   ├── new-york/           # New York style components
+│   │   ├── component-name/ # Individual component directories
+│   │   │   ├── component-name.tsx        # Main component file
+│   │   │   └── component-name-demo.tsx   # Demo component (optional)
+├── lib/                    # Utility functions and hooks
+├── registry.json           # Registry configuration file
+└── tailwind.config.ts      # Tailwind configuration
+```
+
+## Code of Conduct
+
+Please read and follow our Code of Conduct to foster an inclusive and respectful community.

@@ -1,0 +1,425 @@
+---
+title: Creative Buttons
+description: A collection of creative and animated button components with unique visual effects
+---
+
+<ComponentPreview name="creative-buttons-demo" />
+
+## Installation
+
+<Tabs defaultValue="cli">
+
+<TabsContent value="cli">
+
+```bash
+npx rigidui@latest add creative-buttons
+```
+
+</TabsContent>
+
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Copy and paste the following code into your project.</Step>
+
+<ComponentSource name="creative-buttons" />
+
+</Steps>
+
+</TabsContent>
+
+</Tabs>
+
+## Components
+
+This package includes six distinct button styles:
+
+1. **GradientGlowButton** - Purple gradient with glowing shadow
+2. **AnimatedBorderButton** - Animated gradient border effect
+3. **RetroButton** - Vintage, 3D-style button
+4. **PurpleGradientButton** - Bold purple gradient design
+5. **NeumorphismButton** - Soft, neumorphic design
+6. **RainbowButton** - Animated rainbow gradient border
+7. **GitHubStarButton** - GitHub-themed star button (extends RainbowButton)
+
+## Usage
+
+```tsx
+import { 
+  GradientGlowButton,
+  AnimatedBorderButton,
+  RetroButton,
+  PurpleGradientButton,
+  NeumorphismButton,
+  RainbowButton,
+  GitHubStarButton
+} from "@/components/ui/creative-buttons"
+
+export default function Example() {
+  return (
+    <div className="flex gap-4">
+      <GradientGlowButton>Click Me</GradientGlowButton>
+      <AnimatedBorderButton>Hover Me</AnimatedBorderButton>
+      <RetroButton>Retro</RetroButton>
+    </div>
+  )
+}
+```
+
+## Examples
+
+### GradientGlowButton
+
+A button with a purple gradient background and glowing shadow effect.
+
+```tsx
+<GradientGlowButton onClick={() => console.log('Clicked')}>
+  Submit Form
+</GradientGlowButton>
+
+<GradientGlowButton className="text-lg px-8 py-4">
+  Large Button
+</GradientGlowButton>
+```
+
+**Features:**
+- Gradient from indigo-900 to indigo-600
+- Glowing shadow on hover (increases intensity)
+- Active state scales down (0.95)
+- Smooth transitions (200ms)
+
+### AnimatedBorderButton
+
+A button with an animated gradient border and glow effects.
+
+```tsx
+<AnimatedBorderButton onClick={() => alert('Hello')}>
+  Animated Border
+</AnimatedBorderButton>
+
+<AnimatedBorderButton className="w-full">
+  Full Width Button
+</AnimatedBorderButton>
+```
+
+**Features:**
+- Animated gradient border (10s infinite loop)
+- Rotating icon with scale on hover
+- Pulsing glow effect (14s animation)
+- Dark mode support
+
+### RetroButton
+
+A vintage-style button with 3D offset shadow.
+
+```tsx
+<RetroButton onClick={() => console.log('Retro!')}>
+  Click Here
+</RetroButton>
+
+<RetroButton className="text-2xl px-8">
+  Big Retro Button
+</RetroButton>
+```
+
+**Features:**
+- 3D shadow effect (3px offset)
+- Active state reduces shadow and translates position
+- Cream background with brown border
+- Touch-optimized
+
+### PurpleGradientButton
+
+A bold button with layered purple gradient.
+
+```tsx
+<PurpleGradientButton onClick={() => {}}>Press Me</PurpleGradientButton>
+
+<PurpleGradientButton disabled>Disabled State</PurpleGradientButton>
+```
+
+**Features:**
+- Double gradient layers (border + background)
+- Active state scales down (0.95)
+- Opacity hover effect (90% → 100%)
+- Purple color scheme
+
+### NeumorphismButton
+
+A soft, neumorphic design with layered shadows.
+
+```tsx
+<NeumorphismButton onClick={() => {}}>
+  Neumorphic
+</NeumorphismButton>
+
+<NeumorphismButton className="w-64">
+  Wide Neumorphic Button
+</NeumorphismButton>
+```
+
+**Features:**
+- Multi-layer gradient design
+- Soft shadow effects
+- Active state reduces shadow intensity
+- Subtle scale animation (0.995)
+
+### RainbowButton
+
+An animated button with rainbow gradient border.
+
+```tsx
+<RainbowButton onClick={() => {}}>
+  Rainbow Effect
+</RainbowButton>
+
+<RainbowButton showStars starCount={42}>
+  With Stars
+</RainbowButton>
+```
+
+**Features:**
+- Animated rainbow gradient border
+- Optional star rating display
+- Blur glow effect underneath
+- Scale on hover (1.05) and active (0.95)
+- Dark mode support
+
+### GitHubStarButton
+
+A GitHub-themed button with star icon and count.
+
+```tsx
+<GitHubStarButton starCount={1234}>
+  Star on GitHub
+</GitHubStarButton>
+
+<GitHubStarButton starCount={999} showIcon={false}>
+  Stars Only
+</GitHubStarButton>
+```
+
+**Features:**
+- GitHub logo SVG icon
+- Star count with yellow hover effect
+- Built on RainbowButton
+- Perfect for repository links
+
+## API Reference
+
+### BaseButtonProps
+
+All buttons extend React's native button props with these additions:
+
+<ParamField path="children" type="React.ReactNode" required>
+  Button content
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes for styling
+</ParamField>
+
+### RainbowButton Props
+
+Extends `BaseButtonProps` with:
+
+<ParamField path="showStars" type="boolean" default="false">
+  Display star icon with count
+</ParamField>
+
+<ParamField path="starCount" type="number" default="11">
+  Number of stars to display
+</ParamField>
+
+### GitHubStarButton Props
+
+Extends `BaseButtonProps` with:
+
+<ParamField path="starCount" type="number" default="11">
+  Number of GitHub stars to display
+</ParamField>
+
+<ParamField path="showIcon" type="boolean" default="true">
+  Show GitHub icon
+</ParamField>
+
+## Animation Details
+
+### GradientGlowButton Animations
+
+```css
+/* Hover state */
+shadow: 0 0.5em 1.5em -0.5em rgba(67,56,202,0.8)
+background: linear-gradient(to-t, indigo-950, indigo-700)
+
+/* Active state */
+shadow: 0 0.3em 1em -0.5em rgba(67,56,202,0.8)
+transform: scale(0.95)
+```
+
+### AnimatedBorderButton Animations
+
+```css
+/* Border glow animation */
+@keyframes border-glow-translate {
+  /* 10s ease-in-out infinite alternate */
+}
+
+@keyframes border-glow-scale {
+  /* 10s ease-in-out infinite alternate */
+}
+
+/* Star shine animation */
+@keyframes star-shine {
+  /* 14s ease-in-out infinite alternate */
+}
+```
+
+### RainbowButton Animation
+
+```css
+@keyframes rainbow {
+  /* Animates through HSL color spectrum */
+  /* Background size: 200% for smooth gradient shift */
+}
+```
+
+<Callout type="info">
+  The RainbowButton uses a custom `animate-rainbow` class that cycles through the full color spectrum. The animation is applied to both the border and the bottom glow effect.
+</Callout>
+
+## Styling Tips
+
+### Combining with Custom Styles
+
+```tsx
+<GradientGlowButton className="rounded-full text-xl font-bold">
+  Custom Styled
+</GradientGlowButton>
+```
+
+### Full Width Buttons
+
+```tsx
+<div className="w-full">
+  <AnimatedBorderButton className="w-full justify-center">
+    Full Width
+  </AnimatedBorderButton>
+</div>
+```
+
+### Button Groups
+
+```tsx
+<div className="flex gap-2">
+  <GradientGlowButton>Save</GradientGlowButton>
+  <RetroButton>Cancel</RetroButton>
+</div>
+```
+
+### Icon Buttons
+
+```tsx
+import { Download } from "lucide-react"
+
+<PurpleGradientButton>
+  <Download className="mr-2" size={20} />
+  Download
+</PurpleGradientButton>
+```
+
+## Dark Mode Support
+
+<Callout>
+  **AnimatedBorderButton**, **RainbowButton**, and **GitHubStarButton** have built-in dark mode support using Tailwind's `dark:` prefix.
+</Callout>
+
+```tsx
+// Automatically adapts to dark mode
+<AnimatedBorderButton>
+  Dark Mode Ready
+</AnimatedBorderButton>
+```
+
+## Performance Considerations
+
+<Callout type="tip">
+  CSS animations are hardware-accelerated and perform well across devices. The AnimatedBorderButton uses multiple animated layers, so use sparingly on pages with many buttons.
+</Callout>
+
+### Best Practices
+
+1. **Limit animated buttons**: Use 1-3 AnimatedBorderButtons per view
+2. **Prefer CSS animations**: Built-in CSS animations over JavaScript
+3. **Test on mobile**: Ensure animations don't cause jank on slower devices
+4. **Use will-change sparingly**: Already optimized in components
+
+## Accessibility
+
+- All buttons use semantic `<button>` elements
+- Keyboard accessible (Tab, Enter, Space)
+- Proper `role="button"` attributes
+- Support for `disabled` state
+- Focus-visible styles from Tailwind
+
+<Callout type="warning">
+  Ensure sufficient color contrast between button text and background, especially for custom color modifications.
+</Callout>
+
+## Browser Support
+
+All buttons are compatible with modern browsers:
+- Chrome/Edge 90+
+- Firefox 88+
+- Safari 14+
+- Mobile browsers (iOS Safari, Chrome Mobile)
+
+Gradient animations and custom easing require modern CSS support.
+
+## Examples in Context
+
+### Landing Page CTA
+
+```tsx
+<section className="text-center py-20">
+  <h1 className="text-5xl font-bold mb-8">Join Our Platform</h1>
+  <div className="flex gap-4 justify-center">
+    <GradientGlowButton className="text-lg px-8 py-4">
+      Get Started Free
+    </GradientGlowButton>
+    <RetroButton className="text-lg px-8 py-4">
+      Learn More
+    </RetroButton>
+  </div>
+</section>
+```
+
+### GitHub Repository
+
+```tsx
+<div className="flex items-center gap-4">
+  <GitHubStarButton 
+    starCount={2547}
+    onClick={() => window.open('https://github.com/user/repo')}
+  >
+    Star on GitHub
+  </GitHubStarButton>
+</div>
+```
+
+### Form Actions
+
+```tsx
+<form onSubmit={handleSubmit}>
+  {/* form fields */}
+  <div className="flex gap-3 mt-6">
+    <PurpleGradientButton type="submit">
+      Submit
+    </PurpleGradientButton>
+    <NeumorphismButton type="button" onClick={handleReset}>
+      Reset
+    </NeumorphismButton>
+  </div>
+</form>
+```

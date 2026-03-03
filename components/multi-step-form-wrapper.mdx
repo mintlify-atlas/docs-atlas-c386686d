@@ -1,0 +1,498 @@
+---
+title: Multi Step Form Wrapper
+description: A flexible multi-step form wrapper with validation, progress tracking, and step management.
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="CLI">
+    ```bash
+    npx rigidui-cli@latest add multi-step-form-wrapper
+    ```
+  </Tab>
+  <Tab title="Manual">
+    Install dependencies:
+    ```bash
+    npm install react-hook-form zod @hookform/resolvers
+    ```
+
+    Copy and paste the component source code into your project.
+  </Tab>
+</Tabs>
+
+## Usage
+
+```tsx
+import { MultiStepFormWrapper, Step, useMultiStepForm } from "@/components/ui/multi-step-form-wrapper"
+import { z } from "zod"
+
+const schema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  age: z.number().min(18),
+})
+
+type FormData = z.infer<typeof schema>
+
+export function MultiStepExample() {
+  const handleComplete = (data: FormData) => {
+    console.log("Form completed:", data)
+  }
+
+  return (
+    <MultiStepFormWrapper<FormData>
+      schema={schema}
+      onComplete={handleComplete}
+      showProgressBar
+    >
+      <Step title="Personal Info" description="Enter your details">
+        <PersonalInfoStep />
+      </Step>
+      <Step title="Contact" description="How can we reach you?">
+        <ContactStep />
+      </Step>
+      <Step title="Review" description="Confirm your information">
+        <ReviewStep />
+      </Step>
+    </MultiStepFormWrapper>
+  )
+}
+
+function PersonalInfoStep() {
+  const { form } = useMultiStepForm<FormData>()
+
+  return (
+    <div>
+      <input {...form.register("name")} placeholder="Name" />
+      <input {...form.register("age")} type="number" placeholder="Age" />
+    </div>
+  )
+}
+```
+
+## Examples
+
+### Basic Multi-Step Form
+
+Simple three-step form with validation:
+
+```tsx
+import { MultiStepFormWrapper, Step, useMultiStepForm } from "@/components/ui/multi-step-form-wrapper"
+import { z } from "zod"
+
+const userSchema = z.object({
+  username: z.string().min(3),
+  password: z.string().min(8),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+})
+
+type UserFormData = z.infer<typeof userSchema>
+
+export function SignupForm() {
+  return (
+    <MultiStepFormWrapper<UserFormData>
+      schema={userSchema}
+      onComplete={(data) => console.log(data)}
+    >
+      <Step title="Account">
+        <AccountStep />
+      </Step>
+      <Step title="Password">
+        <PasswordStep />
+      </Step>
+      <Step title="Confirm">
+        <ConfirmStep />
+      </Step>
+    </MultiStepFormWrapper>
+  )
+}
+```
+
+### Step-Level Validation
+
+Validate each step individually:
+
+```tsx
+import { MultiStepFormWrapper, Step } from "@/components/ui/multi-step-form-wrapper"
+import { z } from "zod"
+
+const step1Schema = z.object({
+  firstName: z.string().min(2),
+  lastName: z.string().min(2),
+})
+
+const step2Schema = z.object({
+  email: z.string().email(),
+  phone: z.string().min(10),
+})
+
+export function StepValidationForm() {
+  return (
+    <MultiStepFormWrapper
+      onComplete={(data) => console.log(data)}
+      showStepIndicator
+    >
+      <Step
+        title="Name"
+        schema={step1Schema}
+        validationMessage="Please fill in your name correctly"
+      >
+        <NameFields />
+      </Step>
+      <Step
+        title="Contact"
+        schema={step2Schema}
+        validationMessage="Please provide valid contact information"
+      >
+        <ContactFields />
+      </Step>
+    </MultiStepFormWrapper>
+  )
+}
+```
+
+### Custom Validation Logic
+
+Implement custom validation per step:
+
+```tsx
+import { MultiStepFormWrapper, Step } from "@/components/ui/multi-step-form-wrapper"
+
+export function CustomValidationForm() {
+  const validateAge = async (data: any) => {
+    // Custom async validation
+    if (data.age < 18) {
+      return false
+    }
+    return true
+  }
+
+  return (
+    <MultiStepFormWrapper onComplete={(data) => console.log(data)}>
+      <Step
+        title="Age Verification"
+        validate={validateAge}
+        validationMessage="You must be 18 or older"
+      >
+        <AgeInput />
+      </Step>
+      <Step title="Continue">
+        <NextStepContent />
+      </Step>
+    </MultiStepFormWrapper>
+  )
+}
+```
+
+### With Progress Bar and Persistence
+
+Show progress and persist form data:
+
+```tsx
+import { MultiStepFormWrapper, Step } from "@/components/ui/multi-step-form-wrapper"
+
+export function PersistentForm() {
+  return (
+    <MultiStepFormWrapper
+      onComplete={(data) => console.log(data)}
+      showProgressBar
+      persistKey="signup-form"
+      autoSave
+      autoSaveDelay={500}
+    >
+      <Step title="Step 1">
+        <FirstStep />
+      </Step>
+      <Step title="Step 2">
+        <SecondStep />
+      </Step>
+      <Step title="Step 3">
+        <ThirdStep />
+      </Step>
+    </MultiStepFormWrapper>
+  )
+}
+```
+
+### With Step Lifecycle Hooks
+
+React to step changes:
+
+```tsx
+import { MultiStepFormWrapper, Step } from "@/components/ui/multi-step-form-wrapper"
+
+export function LifecycleForm() {
+  return (
+    <MultiStepFormWrapper
+      onComplete={(data) => console.log(data)}
+      onStepChange={(prev, next) => {
+        console.log(`Moving from step ${prev} to step ${next}`)
+      }}
+    >
+      <Step
+        title="Welcome"
+        onEnter={(data) => console.log("Entered step 1", data)}
+        onExit={(data) => console.log("Exiting step 1", data)}
+      >
+        <WelcomeContent />
+      </Step>
+      <Step title="Details">
+        <DetailsContent />
+      </Step>
+    </MultiStepFormWrapper>
+  )
+}
+```
+
+## API Reference
+
+### MultiStepFormWrapper
+
+The main wrapper component for multi-step forms.
+
+<ParamField path="children" type="ReactNode" required>
+  Step components that define each step of the form.
+</ParamField>
+
+<ParamField path="onComplete" type="(data: T) => void">
+  Callback function called when the form is completed.
+</ParamField>
+
+<ParamField path="schema" type="z.ZodType<T>">
+  Zod schema for the entire form validation.
+</ParamField>
+
+<ParamField path="initialData" type="Partial<T>">
+  Initial form data values.
+</ParamField>
+
+<ParamField path="showStepIndicator" type="boolean" default="true">
+  Display step indicators at the top.
+</ParamField>
+
+<ParamField path="showStepTitle" type="boolean" default="true">
+  Display the title and description for each step.
+</ParamField>
+
+<ParamField path="showProgressBar" type="boolean" default="false">
+  Display a progress bar showing completion percentage.
+</ParamField>
+
+<ParamField path="allowSkipSteps" type="boolean" default="false">
+  Allow users to skip to any step by clicking the step indicator.
+</ParamField>
+
+<ParamField path="allowStepReset" type="boolean" default="false">
+  Show a reset button to restart the form.
+</ParamField>
+
+<ParamField path="navigationPosition" type="'top' | 'bottom'" default="'bottom'">
+  Position of the navigation buttons.
+</ParamField>
+
+<ParamField path="nextButtonText" type="string" default="'Next'">
+  Text for the next button.
+</ParamField>
+
+<ParamField path="prevButtonText" type="string" default="'Back'">
+  Text for the previous button.
+</ParamField>
+
+<ParamField path="completeButtonText" type="string" default="'Complete'">
+  Text for the complete button on the last step.
+</ParamField>
+
+<ParamField path="persistKey" type="string">
+  LocalStorage key for persisting form data.
+</ParamField>
+
+<ParamField path="autoSave" type="boolean" default="false">
+  Automatically save form data to localStorage.
+</ParamField>
+
+<ParamField path="autoSaveDelay" type="number" default="1000">
+  Delay in milliseconds before auto-saving.
+</ParamField>
+
+<ParamField path="animateStepChange" type="boolean" default="true">
+  Enable animations when changing steps.
+</ParamField>
+
+<ParamField path="transitionDuration" type="number" default="300">
+  Duration of step transition animations in milliseconds.
+</ParamField>
+
+<ParamField path="onStepChange" type="(prevStep: number, nextStep: number) => void">
+  Callback when navigating between steps.
+</ParamField>
+
+<ParamField path="onStepValidationError" type="(step: number, errors: any) => void">
+  Callback when step validation fails.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes to apply.
+</ParamField>
+
+### Step
+
+Defines an individual step in the form.
+
+<ParamField path="children" type="ReactNode" required>
+  Content to display in this step.
+</ParamField>
+
+<ParamField path="title" type="string">
+  Title of the step.
+</ParamField>
+
+<ParamField path="description" type="string">
+  Description text for the step.
+</ParamField>
+
+<ParamField path="schema" type="z.ZodObject<any>">
+  Zod schema for validating this specific step.
+</ParamField>
+
+<ParamField path="validate" type="(data: T) => Promise<boolean> | boolean">
+  Custom validation function for the step.
+</ParamField>
+
+<ParamField path="validationMessage" type="string">
+  Custom error message to display when validation fails.
+</ParamField>
+
+<ParamField path="canSkip" type="boolean" default="false">
+  Allow skipping this step without validation.
+</ParamField>
+
+<ParamField path="isOptional" type="boolean" default="false">
+  Mark the step as optional.
+</ParamField>
+
+<ParamField path="onEnter" type="(data: T) => void">
+  Callback when entering this step.
+</ParamField>
+
+<ParamField path="onExit" type="(data: T) => void">
+  Callback when exiting this step.
+</ParamField>
+
+### useMultiStepForm
+
+Hook to access form context within step components.
+
+```tsx
+const {
+  currentStep,
+  totalSteps,
+  formData,
+  updateFormData,
+  goToNextStep,
+  goToPrevStep,
+  goToStep,
+  resetForm,
+  isFirstStep,
+  isLastStep,
+  isComplete,
+  isLoading,
+  form,
+  getProgressPercentage,
+  stepErrors,
+} = useMultiStepForm<FormData>()
+```
+
+<ParamField path="currentStep" type="number">
+  Current active step index (0-based).
+</ParamField>
+
+<ParamField path="totalSteps" type="number">
+  Total number of steps in the form.
+</ParamField>
+
+<ParamField path="formData" type="T">
+  Current form data across all steps.
+</ParamField>
+
+<ParamField path="updateFormData" type="(stepData: Partial<T>) => void">
+  Update form data for the current step.
+</ParamField>
+
+<ParamField path="goToNextStep" type="() => Promise<void>">
+  Navigate to the next step (with validation).
+</ParamField>
+
+<ParamField path="goToPrevStep" type="() => void">
+  Navigate to the previous step.
+</ParamField>
+
+<ParamField path="goToStep" type="(step: number) => void">
+  Navigate to a specific step by index.
+</ParamField>
+
+<ParamField path="resetForm" type="() => void">
+  Reset the form to initial state.
+</ParamField>
+
+<ParamField path="isFirstStep" type="boolean">
+  Whether the current step is the first step.
+</ParamField>
+
+<ParamField path="isLastStep" type="boolean">
+  Whether the current step is the last step.
+</ParamField>
+
+<ParamField path="isComplete" type="boolean">
+  Whether the form has been completed.
+</ParamField>
+
+<ParamField path="isLoading" type="boolean">
+  Whether validation or submission is in progress.
+</ParamField>
+
+<ParamField path="form" type="UseFormReturn<T>">
+  React Hook Form instance.
+</ParamField>
+
+<ParamField path="getProgressPercentage" type="() => number">
+  Get the current progress as a percentage.
+</ParamField>
+
+<ParamField path="stepErrors" type="Record<number, string>">
+  Validation errors for each step.
+</ParamField>
+
+## Features
+
+- **Multi-Step Navigation**: Intuitive step-by-step navigation with back/next buttons
+- **Form Validation**: Support for both global and per-step Zod schema validation
+- **Custom Validation**: Add custom async validation logic per step
+- **Progress Tracking**: Visual progress indicators and percentage display
+- **Data Persistence**: Auto-save form data to localStorage
+- **Step Indicators**: Visual step progress with clickable navigation (optional)
+- **Lifecycle Hooks**: React to step entry/exit events
+- **Error Handling**: Display validation errors per step
+- **TypeScript Support**: Full type safety with generics
+- **Flexible Layout**: Customizable button text and positioning
+
+## Dependencies
+
+This component requires the following dependencies:
+
+- `react-hook-form` - Form state management and validation
+- `zod` - Schema validation
+- `@hookform/resolvers` - Zod resolver for react-hook-form
+- `button` - shadcn/ui button component
+- `lucide-react` - For icons
+
+<Note>
+  Form data is automatically synced between steps. Use the `useMultiStepForm` hook to access and update data within step components.
+</Note>
+
+<Warning>
+  When using `persistKey`, form data is stored in localStorage. Make sure not to store sensitive information without encryption.
+</Warning>

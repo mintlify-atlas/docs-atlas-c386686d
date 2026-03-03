@@ -1,0 +1,301 @@
+---
+title: Content Grid
+description: Flexible grid/list component with seamless view switching and customizable rendering
+---
+
+## Overview
+
+The Content Grid component provides a flexible way to display items in either a grid or list layout with smooth transitions between views. It includes built-in view mode controls and supports responsive grid columns.
+
+## Installation
+
+```bash
+npx shadcn@latest add https://rigidui.com/r/content-grid.json
+```
+
+## Features
+
+- Grid and list view modes with smooth transitions
+- Responsive grid columns
+- Customizable item rendering
+- Built-in view mode toggle controls
+- Item count display
+- Empty state handling
+
+## API Reference
+
+### ContentGrid Props
+
+<ParamField path="items" type="ContentItem[]" required>
+  Array of items to display. Each item must have a unique `id` property
+</ParamField>
+
+<ParamField path="renderCard" type="(item: ContentItem, viewMode: ViewMode) => ReactNode" required>
+  Function to render each item. Receives the item and current view mode
+</ParamField>
+
+<ParamField path="defaultViewMode" type="'grid' | 'list'" default="'grid'">
+  Initial view mode when component mounts
+</ParamField>
+
+<ParamField path="gridColumns" type="'auto' | 1 | 2 | 3 | 4 | 5 | 6" default="'auto'">
+  Number of grid columns. 'auto' provides responsive columns based on screen size
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes for the container
+</ParamField>
+
+<ParamField path="onViewModeChange" type="(mode: ViewMode) => void">
+  Callback fired when view mode changes
+</ParamField>
+
+### ContentItem Interface
+
+<ParamField path="id" type="string | number" required>
+  Unique identifier for the item
+</ParamField>
+
+<ParamField path="[key]" type="unknown">
+  Any additional properties specific to your items
+</ParamField>
+
+## Usage Examples
+
+### Basic Grid
+
+```tsx
+import { ContentGrid } from '@/components/ui/content-grid'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
+const products = [
+  { id: 1, name: 'Product 1', price: 29.99 },
+  { id: 2, name: 'Product 2', price: 39.99 },
+  { id: 3, name: 'Product 3', price: 49.99 },
+]
+
+function ProductGallery() {
+  return (
+    <ContentGrid
+      items={products}
+      renderCard={(item, viewMode) => (
+        <Card key={item.id}>
+          <CardHeader>
+            <CardTitle>{item.name}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>${item.price}</p>
+          </CardContent>
+        </Card>
+      )}
+    />
+  )
+}
+```
+
+### Different Layouts for Grid vs List
+
+```tsx
+import { ContentGrid } from '@/components/ui/content-grid'
+import { Card, CardContent } from '@/components/ui/card'
+
+const articles = [
+  { 
+    id: 1, 
+    title: 'Article Title', 
+    excerpt: 'Brief description...', 
+    author: 'John Doe',
+    date: '2024-01-15'
+  },
+  // ... more articles
+]
+
+function ArticleList() {
+  return (
+    <ContentGrid
+      items={articles}
+      renderCard={(article, viewMode) => {
+        if (viewMode === 'grid') {
+          return (
+            <Card key={article.id} className="h-full">
+              <CardContent className="pt-6">
+                <h3 className="font-bold text-lg mb-2">{article.title}</h3>
+                <p className="text-sm text-muted-foreground">{article.excerpt}</p>
+              </CardContent>
+            </Card>
+          )
+        }
+        
+        // List view
+        return (
+          <Card key={article.id}>
+            <CardContent className="flex items-center gap-4 p-4">
+              <div className="flex-1">
+                <h3 className="font-bold">{article.title}</h3>
+                <p className="text-sm text-muted-foreground">{article.excerpt}</p>
+              </div>
+              <div className="text-right text-sm">
+                <p>{article.author}</p>
+                <p className="text-muted-foreground">{article.date}</p>
+              </div>
+            </CardContent>
+          </Card>
+        )
+      }}
+    />
+  )
+}
+```
+
+### Custom Grid Columns
+
+```tsx
+import { ContentGrid } from '@/components/ui/content-grid'
+
+function ImageGallery() {
+  return (
+    <ContentGrid
+      items={images}
+      gridColumns={6} // 6 columns on large screens
+      renderCard={(image) => (
+        <div key={image.id} className="aspect-square rounded-lg overflow-hidden">
+          <img 
+            src={image.url} 
+            alt={image.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+    />
+  )
+}
+```
+
+### With View Mode Callback
+
+```tsx
+import { ContentGrid } from '@/components/ui/content-grid'
+import { useState } from 'react'
+
+function ProductCatalog() {
+  const [currentView, setCurrentView] = useState<'grid' | 'list'>('grid')
+  
+  return (
+    <div>
+      <p className="mb-4">Current view: {currentView}</p>
+      <ContentGrid
+        items={products}
+        defaultViewMode={currentView}
+        onViewModeChange={(mode) => {
+          setCurrentView(mode)
+          // Save preference to localStorage
+          localStorage.setItem('preferredView', mode)
+        }}
+        renderCard={(product) => (
+          <ProductCard product={product} />
+        )}
+      />
+    </div>
+  )
+}
+```
+
+### Responsive Auto Columns
+
+When using `gridColumns="auto"` (default), the grid automatically adjusts:
+
+- Mobile (< 640px): 1 column
+- Tablet (640px - 1024px): 2 columns
+- Desktop (1024px - 1280px): 3 columns
+- Large Desktop (> 1280px): 4 columns
+
+```tsx
+import { ContentGrid } from '@/components/ui/content-grid'
+
+function ResponsiveGallery() {
+  return (
+    <ContentGrid
+      items={items}
+      gridColumns="auto" // Responsive by default
+      renderCard={(item) => <ItemCard item={item} />}
+    />
+  )
+}
+```
+
+### Complex Item Rendering
+
+```tsx
+import { ContentGrid } from '@/components/ui/content-grid'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+
+interface Product {
+  id: number
+  name: string
+  price: number
+  category: string
+  inStock: boolean
+  image: string
+}
+
+function ProductGrid({ products }: { products: Product[] }) {
+  return (
+    <ContentGrid
+      items={products}
+      renderCard={(product, viewMode) => (
+        <Card key={product.id}>
+          {viewMode === 'grid' && (
+            <div className="aspect-video w-full overflow-hidden">
+              <img 
+                src={product.image} 
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <CardTitle>{product.name}</CardTitle>
+              <Badge variant={product.inStock ? 'default' : 'secondary'}>
+                {product.inStock ? 'In Stock' : 'Out of Stock'}
+              </Badge>
+            </div>
+            <CardDescription>{product.category}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <p className="text-2xl font-bold">${product.price}</p>
+              <Button disabled={!product.inStock}>Add to Cart</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    />
+  )
+}
+```
+
+## Styling
+
+The component uses Tailwind CSS for responsive grid layouts:
+
+```tsx
+// Grid columns classes applied based on gridColumns prop:
+gridColumns={1}  // "grid-cols-1"
+gridColumns={2}  // "grid-cols-1 md:grid-cols-2"
+gridColumns={3}  // "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+gridColumns={4}  // "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+```
+
+<Note>
+The component includes smooth transitions when switching between grid and list views using CSS transitions with a 200ms duration.
+</Note>
+
+<Tip>
+For the best user experience, design your cards to work well in both grid and list layouts. Use the `viewMode` parameter in `renderCard` to conditionally adjust your card layout.
+</Tip>
+
+<Warning>
+Ensure all items in the `items` array have a unique `id` property. The component uses this for React keys and efficient rendering.
+</Warning>

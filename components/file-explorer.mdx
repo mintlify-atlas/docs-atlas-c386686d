@@ -1,0 +1,315 @@
+---
+title: File Explorer
+description: A comprehensive file system explorer component with code preview, syntax highlighting, and image support.
+---
+
+<ComponentPreview name="file-explorer-demo" />
+
+## Installation
+
+<Tabs defaultValue="cli">
+
+<TabsItem value="cli">
+
+```bash
+npx rigidui@latest add file-explorer
+```
+
+</TabsItem>
+
+<TabsItem value="manual">
+
+<Steps>
+
+<Step>
+
+Install the required dependencies:
+
+```bash
+npm install react-syntax-highlighter lucide-react
+```
+
+</Step>
+
+<Step>
+
+Install the shadcn/ui dependencies:
+
+```bash
+npx shadcn@latest add button card input
+```
+
+</Step>
+
+<Step>
+
+Copy and paste the following code into your project:
+
+<ComponentSource name="file-explorer" />
+
+</Step>
+
+</Steps>
+
+</TabsItem>
+
+</Tabs>
+
+## Usage
+
+```tsx
+import { FileExplorer } from "@/components/ui/file-explorer"
+
+const fileSystemData = {
+  id: 'root',
+  name: 'project-root',
+  type: 'folder',
+  expanded: true,
+  children: [
+    {
+      id: 'src',
+      name: 'src',
+      type: 'folder',
+      children: [
+        {
+          id: 'App.tsx',
+          name: 'App.tsx',
+          type: 'file',
+          language: 'tsx',
+          content: 'import React from "react"\n\nexport default function App() {\n  return <div>Hello World</div>\n}'
+        }
+      ]
+    }
+  ]
+}
+
+export default function Demo() {
+  return (
+    <FileExplorer
+      initialData={fileSystemData}
+      onFileSelect={(file) => console.log('Selected:', file)}
+      onFolderToggle={(id, isExpanded) => console.log('Folder toggled:', id, isExpanded)}
+    />
+  )
+}
+```
+
+## Examples
+
+### Basic File Explorer
+
+<ComponentPreview name="file-explorer-demo" />
+
+### Custom Icons
+
+Customize the file and folder icons:
+
+```tsx
+import { FileExplorer } from "@/components/ui/file-explorer"
+import { Code, FolderGit, FolderGit2 } from "lucide-react"
+
+export default function CustomIconsDemo() {
+  return (
+    <FileExplorer
+      initialData={fileSystemData}
+      defaultFileIcon={<Code className="h-4 w-4 text-blue-500" />}
+      defaultFolderIcon={<FolderGit className="h-4 w-4 text-purple-500" />}
+      defaultFolderOpenIcon={<FolderGit2 className="h-4 w-4 text-purple-500" />}
+    />
+  )
+}
+```
+
+### With Loading State
+
+```tsx
+import { FileExplorer } from "@/components/ui/file-explorer"
+import { useState } from "react"
+
+export default function LoadingDemo() {
+  const [loading, setLoading] = useState(false)
+  const [data, setData] = useState(fileSystemData)
+
+  const handleRefresh = async () => {
+    setLoading(true)
+    // Fetch new data
+    const newData = await fetchFileSystemData()
+    setData(newData)
+    setLoading(false)
+  }
+
+  return (
+    <FileExplorer
+      initialData={data}
+      loading={loading}
+      onRefresh={handleRefresh}
+    />
+  )
+}
+```
+
+### Image Support
+
+The File Explorer automatically detects and displays images:
+
+```tsx
+const dataWithImages = {
+  id: 'root',
+  name: 'assets',
+  type: 'folder',
+  children: [
+    {
+      id: 'logo',
+      name: 'logo.png',
+      type: 'file',
+      isImage: true,
+      imageUrl: 'https://example.com/logo.png',
+      content: 'Binary image data'
+    }
+  ]
+}
+
+<FileExplorer initialData={dataWithImages} />
+```
+
+<Callout>
+The component automatically detects common image extensions (.jpg, .png, .gif, .svg, etc.) and displays them with a preview.
+</Callout>
+
+### Compact View
+
+```tsx
+<FileExplorer
+  initialData={fileSystemData}
+  showTitle={false}
+  height="400px"
+  fileContentHeight="350px"
+  cardClassName="shadow-none border-0"
+/>
+```
+
+## API Reference
+
+### FileExplorer
+
+<ParamField path="initialData" type="FolderType" default="defaultFileSystemData">
+  The initial file system data structure to display.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes for the container element.
+</ParamField>
+
+<ParamField path="cardClassName" type="string">
+  Additional CSS classes for the card components.
+</ParamField>
+
+<ParamField path="title" type="string" default="File Explorer">
+  The title displayed at the top of the component.
+</ParamField>
+
+<ParamField path="showTitle" type="boolean" default="true">
+  Whether to show the title.
+</ParamField>
+
+<ParamField path="height" type="string" default="calc(100vh-200px)">
+  The height of the file explorer panels.
+</ParamField>
+
+<ParamField path="fileContentHeight" type="string" default="100%">
+  The height of the file content preview area.
+</ParamField>
+
+<ParamField path="defaultFileIcon" type="React.ReactNode">
+  Default icon to use for files. Defaults to `<FileText />` from lucide-react.
+</ParamField>
+
+<ParamField path="defaultFolderIcon" type="React.ReactNode">
+  Default icon to use for folders. Defaults to `<Folder />` from lucide-react.
+</ParamField>
+
+<ParamField path="defaultFolderOpenIcon" type="React.ReactNode">
+  Default icon to use for expanded folders. Defaults to `<FolderOpen />` from lucide-react.
+</ParamField>
+
+<ParamField path="onFileSelect" type="(file: FileType) => void">
+  Callback fired when a file is selected.
+</ParamField>
+
+<ParamField path="onFolderToggle" type="(folderId: string, isExpanded: boolean) => void">
+  Callback fired when a folder is expanded or collapsed.
+</ParamField>
+
+<ParamField path="readOnly" type="boolean">
+  Whether the file explorer is read-only.
+</ParamField>
+
+<ParamField path="allowedFileTypes" type="string[]">
+  Array of allowed file types.
+</ParamField>
+
+<ParamField path="maxFileSize" type="number">
+  Maximum file size in bytes.
+</ParamField>
+
+<ParamField path="loading" type="boolean" default="false">
+  Whether the component is in a loading state.
+</ParamField>
+
+<ParamField path="onRefresh" type="() => void">
+  Callback fired when the refresh button is clicked.
+</ParamField>
+
+### Types
+
+#### FileType
+
+```ts
+type FileType = {
+  id: string
+  name: string
+  type: 'file'
+  language?: string
+  content: string
+  icon?: React.ReactNode
+  isImage?: boolean
+  imageUrl?: string
+}
+```
+
+#### FolderType
+
+```ts
+type FolderType = {
+  id: string
+  name: string
+  type: 'folder'
+  children: (FileType | FolderType)[]
+  expanded?: boolean
+  icon?: React.ReactNode
+  expandedIcon?: React.ReactNode
+}
+```
+
+## Features
+
+- **Syntax Highlighting**: Built-in code syntax highlighting using `react-syntax-highlighter`
+- **Image Preview**: Automatic detection and preview of image files
+- **Search**: Real-time file and folder search functionality
+- **Keyboard Navigation**: Full keyboard support with arrow keys and Enter/Space
+- **Copy to Clipboard**: One-click copy of file contents
+- **Responsive**: Mobile-friendly with slide-in file preview on small screens
+- **Customizable Icons**: Override default icons for files and folders
+- **Error Boundary**: Built-in error handling and recovery
+- **Loading States**: Support for async data loading with loading indicators
+- **Accessibility**: Full ARIA support with tree and treeitem roles
+
+<Callout type="info">
+The File Explorer component uses `react-syntax-highlighter` with the Atom One Dark theme by default. The syntax highlighting supports all major programming languages.
+</Callout>
+
+## Dependencies
+
+- `react-syntax-highlighter` - For code syntax highlighting
+- `lucide-react` - For icons
+- `@radix-ui/react-*` (via shadcn/ui) - For Button, Card, and Input components

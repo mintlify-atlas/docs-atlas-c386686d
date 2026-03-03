@@ -1,0 +1,439 @@
+---
+title: Theming
+description: Configure theme colors, dark mode, and CSS variables in RigidUI
+---
+
+RigidUI uses CSS variables for theming, making it easy to customize colors and support dark mode across all components.
+
+## Theme Configuration
+
+RigidUI's theme system is based on the shadcn/ui configuration, using CSS variables defined in your `globals.css` file.
+
+### CSS Variables
+
+Theme colors are defined as HSL (Hue, Saturation, Lightness) values in CSS variables:
+
+```css title="app/globals.css"
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+    --radius: 0.5rem;
+  }
+}
+```
+
+### Tailwind Integration
+
+The CSS variables are mapped to Tailwind colors using the `@theme` directive:
+
+```css title="app/globals.css"
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+```
+
+## Dark Mode Support
+
+RigidUI components automatically support dark mode when you configure dark mode CSS variables.
+
+### Configuring Dark Mode
+
+Define dark mode colors using the `.dark` class:
+
+```css title="app/globals.css"
+@layer base {
+  .dark {
+    --background: 248, 67%, 2%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+  }
+}
+```
+
+### Dark Mode Variant
+
+RigidUI supports a custom dark mode variant:
+
+```css title="app/globals.css"
+@custom-variant dark (&:is(.dark *));
+```
+
+This allows you to use the `dark:` modifier in Tailwind classes:
+
+```tsx
+<div className="bg-background text-foreground dark:bg-card dark:text-card-foreground">
+  Content adapts to theme
+</div>
+```
+
+### Implementing Dark Mode Toggle
+
+Use a theme provider to manage dark mode:
+
+```tsx title="components/theme-provider.tsx"
+import { createContext, useContext, useEffect, useState } from 'react'
+
+type Theme = 'light' | 'dark' | 'system'
+
+const ThemeContext = createContext<{
+  theme: Theme
+  setTheme: (theme: Theme) => void
+}>({
+  theme: 'system',
+  setTheme: () => null,
+})
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<Theme>('system')
+
+  useEffect(() => {
+    const root = window.document.documentElement
+    root.classList.remove('light', 'dark')
+
+    if (theme === 'system') {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light'
+      root.classList.add(systemTheme)
+      return
+    }
+
+    root.classList.add(theme)
+  }, [theme])
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  )
+}
+
+export const useTheme = () => useContext(ThemeContext)
+```
+
+## Customizing Theme Colors
+
+### Method 1: Modify CSS Variables
+
+The simplest way to customize your theme is to change the HSL values:
+
+```css title="app/globals.css"
+:root {
+  /* Change primary color to blue */
+  --primary: 221 83% 53%;  /* hsl(221, 83%, 53%) = #3B82F6 */
+  --primary-foreground: 0 0% 100%;
+
+  /* Change accent color to purple */
+  --accent: 262 83% 58%;   /* hsl(262, 83%, 58%) = #A855F7 */
+  --accent-foreground: 0 0% 100%;
+}
+```
+
+### Method 2: Use a Theme Generator
+
+Generate complete theme configurations:
+
+1. Visit [ui.shadcn.com/themes](https://ui.shadcn.com/themes)
+2. Customize colors using the theme editor
+3. Copy the generated CSS variables
+4. Paste into your `globals.css`
+
+### Method 3: Multiple Color Schemes
+
+Create multiple themes using data attributes:
+
+```css title="app/globals.css"
+[data-theme="ocean"] {
+  --primary: 199 89% 48%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 168 76% 42%;
+  --accent-foreground: 0 0% 100%;
+}
+
+[data-theme="sunset"] {
+  --primary: 25 95% 53%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 340 82% 52%;
+  --accent-foreground: 0 0% 100%;
+}
+```
+
+Apply themes dynamically:
+
+```tsx
+<div data-theme="ocean">
+  <Button>Ocean Theme Button</Button>
+</div>
+```
+
+## Border Radius
+
+Customize the roundness of components globally:
+
+```css title="app/globals.css"
+:root {
+  --radius: 0.5rem;  /* Default */
+  /* --radius: 0rem;     Sharp corners */
+  /* --radius: 0.75rem;  More rounded */
+  /* --radius: 1rem;     Very rounded */
+}
+```
+
+Radii derivatives are automatically calculated:
+
+```css
+--radius-lg: var(--radius);           /* 0.5rem */
+--radius-md: calc(var(--radius) - 2px); /* 0.375rem */
+--radius-sm: calc(var(--radius) - 4px); /* 0.25rem */
+```
+
+## Chart Colors
+
+RigidUI includes chart color variables for data visualization:
+
+```css title="app/globals.css"
+:root {
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+}
+
+.dark {
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
+}
+```
+
+Use in components:
+
+```tsx
+<div className="bg-[hsl(var(--chart-1))]">
+  Chart element
+</div>
+```
+
+## Component-Specific Theming
+
+### Custom Component Colors
+
+Add your own CSS variables for custom components:
+
+```css title="app/globals.css"
+:root {
+  --success: 142 71% 45%;
+  --success-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 0%;
+  --info: 199 89% 48%;
+  --info-foreground: 0 0% 100%;
+}
+```
+
+Map to Tailwind:
+
+```css
+@theme {
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-info: hsl(var(--info));
+  --color-info-foreground: hsl(var(--info-foreground));
+}
+```
+
+Use in components:
+
+```tsx
+<Button className="bg-success text-success-foreground">
+  Success Action
+</Button>
+```
+
+## Using Theme Colors in Components
+
+### Semantic Color Usage
+
+RigidUI components use semantic color names:
+
+```tsx
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { AccessGate } from "@/components/ui/access-manager"
+
+function ThemedComponent() {
+  return (
+    <Card className="bg-card text-card-foreground border-border">
+      <AccessGate
+        roles="admin"
+        className="bg-muted/50 border-muted-foreground/20"
+      >
+        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+          Primary Action
+        </Button>
+        <Button
+          variant="destructive"
+          className="bg-destructive text-destructive-foreground"
+        >
+          Delete
+        </Button>
+      </AccessGate>
+    </Card>
+  )
+}
+```
+
+### Dynamic Theme Access
+
+Access theme colors in JavaScript:
+
+```tsx
+import { useEffect, useState } from 'react'
+
+function useThemeColor(variable: string) {
+  const [color, setColor] = useState('')
+
+  useEffect(() => {
+    const value = getComputedStyle(document.documentElement)
+      .getPropertyValue(variable)
+    setColor(`hsl(${value})`)
+  }, [])
+
+  return color
+}
+
+// Usage
+function Component() {
+  const primaryColor = useThemeColor('--primary')
+  return <div style={{ backgroundColor: primaryColor }}>Themed</div>
+}
+```
+
+## Best Practices
+
+### 1. Use Semantic Names
+
+Always use semantic color names rather than specific colors:
+
+```tsx
+// Good: Adapts to theme changes
+<div className="bg-background text-foreground border-border">
+
+// Bad: Hardcoded colors
+<div className="bg-white text-black border-gray-200">
+```
+
+### 2. Test Both Modes
+
+Always test your customizations in both light and dark mode:
+
+```tsx
+// Ensure sufficient contrast in both modes
+<Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+  Works in both modes
+</Button>
+```
+
+### 3. Maintain Contrast Ratios
+
+Ensure accessible contrast ratios (WCAG AA standard):
+
+- Normal text: 4.5:1 minimum
+- Large text: 3:1 minimum
+
+### 4. Use Alpha Channels for Overlays
+
+Use opacity modifiers for subtle effects:
+
+```tsx
+<div className="bg-primary/10 border-primary/20 text-primary">
+  Subtle primary tint
+</div>
+```
+
+## shadcn/ui Configuration
+
+RigidUI is configured through `components.json`:
+
+```json title="components.json"
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "tailwind": {
+    "config": "tailwind.config.ts",
+    "css": "app/globals.css",
+    "baseColor": "zinc",
+    "cssVariables": true
+  }
+}
+```
+
+- **style**: Component style variant (`new-york` or `default`)
+- **baseColor**: Base color palette (`zinc`, `slate`, `stone`, etc.)
+- **cssVariables**: Use CSS variables for theming (required for RigidUI)
+
+## Next Steps
+
+- Learn about [Customization](/guides/customization) techniques
+- Explore [Component Documentation](/components) for theme usage examples
+- Check out [TypeScript Guide](/guides/typescript) for type-safe theming

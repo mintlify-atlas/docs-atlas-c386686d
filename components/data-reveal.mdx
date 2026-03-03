@@ -1,0 +1,258 @@
+---
+title: Data Reveal
+description: An animated data reveal component with smooth transitions and stagger effects
+---
+
+<ComponentPreview name="data-reveal-demo" />
+
+## Installation
+
+<Tabs defaultValue="cli">
+
+<TabsContent value="cli">
+
+```bash
+npx rigidui@latest add data-reveal
+```
+
+</TabsContent>
+
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Install the motion dependency:</Step>
+
+```bash
+npm install motion
+```
+
+<Step>Copy and paste the following code into your project.</Step>
+
+<ComponentSource name="data-reveal" />
+
+</Steps>
+
+</TabsContent>
+
+</Tabs>
+
+## Usage
+
+```tsx
+import { DataReveal } from "@/components/ui/data-reveal"
+
+export default function Example() {
+  return (
+    <DataReveal>
+      <DataReveal.Button text="Show Details" />
+      <DataReveal.Container>
+        <DataReveal.Item content="Item 1" index={0} />
+        <DataReveal.Item content="Item 2" index={1} />
+        <DataReveal.Item content="Item 3" index={2} />
+      </DataReveal.Container>
+    </DataReveal>
+  )
+}
+```
+
+## Component Structure
+
+DataReveal is a compound component with four sub-components:
+
+- `DataReveal` - Root container with context
+- `DataReveal.Button` - Trigger button to toggle visibility
+- `DataReveal.Container` - Animated container for revealed items
+- `DataReveal.Item` - Individual revealed item with stagger animation
+
+## Examples
+
+### Basic Usage
+
+```tsx
+<DataReveal>
+  <DataReveal.Button text="Reveal" />
+  <DataReveal.Container>
+    <DataReveal.Item content="Secret 1" index={0} />
+    <DataReveal.Item content="Secret 2" index={1} />
+  </DataReveal.Container>
+</DataReveal>
+```
+
+### With Auto-Hide
+
+```tsx
+<DataReveal autoHide autoHideDelay={5000}>
+  <DataReveal.Button text="Show (5s)" />
+  <DataReveal.Container>
+    <DataReveal.Item content="Temporary" index={0} />
+  </DataReveal.Container>
+</DataReveal>
+```
+
+### Custom Styling
+
+```tsx
+<DataReveal>
+  <DataReveal.Button 
+    className="bg-blue-500 hover:bg-blue-600 text-white"
+  >
+    Custom Button
+  </DataReveal.Button>
+  <DataReveal.Container className="gap-4">
+    <DataReveal.Item 
+      className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+      index={0}
+    >
+      Custom Item
+    </DataReveal.Item>
+  </DataReveal.Container>
+</DataReveal>
+```
+
+### With Toggle Callback
+
+```tsx
+const [revealed, setRevealed] = useState(false)
+
+<DataReveal 
+  onToggle={(isRevealed) => {
+    setRevealed(isRevealed)
+    console.log('Revealed state:', isRevealed)
+  }}
+>
+  <DataReveal.Button text={revealed ? "Hide" : "Show"} />
+  <DataReveal.Container>
+    <DataReveal.Item content="Data" index={0} />
+  </DataReveal.Container>
+</DataReveal>
+```
+
+## API Reference
+
+### DataReveal
+
+Root component that provides context for all child components.
+
+<ParamField path="children" type="ReactNode" required>
+  Child components (Button, Container, Items)
+</ParamField>
+
+<ParamField path="defaultRevealed" type="boolean" default="false">
+  Initial revealed state
+</ParamField>
+
+<ParamField path="onToggle" type="(isRevealed: boolean) => void">
+  Callback fired when reveal state changes
+</ParamField>
+
+<ParamField path="disabled" type="boolean" default="false">
+  Disables the toggle functionality
+</ParamField>
+
+<ParamField path="autoHide" type="boolean" default="false">
+  Automatically hide items after delay
+</ParamField>
+
+<ParamField path="autoHideDelay" type="number" default="3000">
+  Delay in milliseconds before auto-hiding (when autoHide is true)
+</ParamField>
+
+### DataReveal.Button
+
+Trigger button that toggles the reveal state.
+
+<ParamField path="children" type="ReactNode">
+  Custom button content
+</ParamField>
+
+<ParamField path="text" type="string" default="'Reveal'">
+  Button text (fallback if children not provided)
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes for button styling
+</ParamField>
+
+### DataReveal.Container
+
+Animated container that wraps the revealed items.
+
+<ParamField path="children" type="ReactNode" required>
+  DataReveal.Item components
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes for container styling
+</ParamField>
+
+#### Animation Props
+
+- **Initial**: `opacity: 0`, `width: 0`, `scale: 0.8`
+- **Animate**: `opacity: 1`, `width: auto`, `scale: 1`
+- **Exit**: `opacity: 0`, `width: 0`, `scale: 0.8`
+- **Duration**: `0.49s` (70% of base duration)
+- **Easing**: `[0.16, 1, 0.3, 1]` (custom cubic bezier)
+
+### DataReveal.Item
+
+Individual item with stagger animation.
+
+<ParamField path="children" type="ReactNode">
+  Custom item content
+</ParamField>
+
+<ParamField path="content" type="string">
+  Item text (fallback if children not provided)
+</ParamField>
+
+<ParamField path="index" type="number" default="0">
+  Index for stagger delay calculation (index × 0.08s)
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes for item styling
+</ParamField>
+
+#### Animation Props
+
+- **Initial**: `opacity: 0`, `x: -60`, `scale: 0.7`, `blur: 4px`
+- **Animate**: `opacity: 1`, `x: 0`, `scale: 1`, `blur: 0px`
+- **Exit**: `opacity: 0`, `x: -40`, `scale: 0.77`, `blur: 2px`
+- **Duration**: `0.7s`
+- **Stagger Delay**: `0.08s` per item
+- **Easing**: `[0.16, 1, 0.3, 1]` (custom cubic bezier)
+
+## Animation Customization
+
+<Callout type="info">
+  The component uses motion/react for animations. All animations use the custom easing curve `[0.16, 1, 0.3, 1]` which creates a smooth, spring-like effect.
+</Callout>
+
+### Default Animation Values
+
+```ts
+const defaultAnimation = {
+  duration: 0.7,
+  staggerDelay: 0.08,
+  ease: [0.16, 1, 0.3, 1],
+  containerScale: 0.8,
+  itemScale: 0.7,
+  blur: 4
+}
+```
+
+<Callout type="tip">
+  For optimal stagger effects, always pass the `index` prop to each `DataReveal.Item`. This ensures items animate in sequence with the correct timing.
+</Callout>
+
+## Accessibility
+
+- The button is keyboard accessible
+- Uses proper semantic HTML structure
+- Respects `disabled` state with visual feedback
+- AnimatePresence ensures smooth mount/unmount animations
+
+<Callout>
+  The component automatically handles animation cleanup when items are removed from the DOM, preventing memory leaks.
+</Callout>

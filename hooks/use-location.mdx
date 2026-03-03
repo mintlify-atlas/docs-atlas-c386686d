@@ -1,0 +1,169 @@
+---
+title: useLocation
+description: A React hook for retrieving and managing the user's geographic location using the browser's Geolocation API and reverse geocoding.
+---
+
+## Installation
+
+<CodeGroup>
+
+```bash npm
+npx @ridgejs/ui add use-location
+```
+
+```bash yarn
+yarn dlx @ridgejs/ui add use-location
+```
+
+```bash pnpm
+pnpm dlx @ridgejs/ui add use-location
+```
+
+```bash bun
+bunx @ridgejs/ui add use-location
+```
+
+</CodeGroup>
+
+## Usage
+
+```tsx
+import { useLocation } from "@/hooks/use-location"
+
+export default function LocationComponent() {
+  const {
+    location,
+    coordinates,
+    isLoading,
+    error,
+    getCurrentLocation,
+    clearLocation,
+  } = useLocation()
+
+  return (
+    <div>
+      <button onClick={getCurrentLocation} disabled={isLoading}>
+        {isLoading ? "Getting location..." : "Get My Location"}
+      </button>
+      
+      {error && <p className="text-red-500">{error}</p>}
+      
+      {location && (
+        <div>
+          <p>Location: {location}</p>
+          {coordinates && (
+            <p>
+              Coordinates: {coordinates.latitude}, {coordinates.longitude}
+            </p>
+          )}
+          <button onClick={clearLocation}>Clear Location</button>
+        </div>
+      )}
+    </div>
+  )
+}
+```
+
+## API Reference
+
+### Parameters
+
+<ParamField path="options" type="UseLocationOptions" default="{}">
+  Configuration options for the hook.
+
+  <Expandable title="properties">
+    <ParamField path="apiUrl" type="string" default="https://nominatim.openstreetmap.org">
+      The URL of the reverse geocoding API. Defaults to OpenStreetMap's Nominatim service.
+    </ParamField>
+
+    <ParamField path="geolocationOptions" type="PositionOptions" default="{ timeout: 10000, enableHighAccuracy: true }">
+      Options passed to the browser's `navigator.geolocation.getCurrentPosition()` method.
+      
+      - `timeout`: Maximum time (in milliseconds) to wait for a position
+      - `enableHighAccuracy`: Whether to use high accuracy mode
+      - `maximumAge`: Maximum age of a cached position
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Return Value
+
+Returns a `UseLocationReturn` object with the following properties and methods:
+
+<ResponseField name="location" type="string">
+  The human-readable location name (e.g., city, county, or state) derived from reverse geocoding.
+</ResponseField>
+
+<ResponseField name="coordinates" type="LocationCoordinates | null">
+  The geographic coordinates of the current location.
+  
+  ```typescript
+  type LocationCoordinates = {
+    latitude: number
+    longitude: number
+  }
+  ```
+</ResponseField>
+
+<ResponseField name="isLoading" type="boolean">
+  Indicates whether a location request is in progress.
+</ResponseField>
+
+<ResponseField name="error" type="string | null">
+  Error message if the location request fails, otherwise `null`.
+</ResponseField>
+
+<ResponseField name="getCurrentLocation" type="() => void">
+  Function to request the user's current location using the browser's Geolocation API. Automatically triggers reverse geocoding to get the location name.
+</ResponseField>
+
+<ResponseField name="getLocationFromCoordinates" type="(lat: number, lon: number) => Promise<void>">
+  Function to get the location name from specific coordinates using reverse geocoding.
+  
+  **Parameters:**
+  - `lat`: Latitude coordinate
+  - `lon`: Longitude coordinate
+</ResponseField>
+
+<ResponseField name="clearLocation" type="() => void">
+  Function to clear the current location, coordinates, and any error state.
+</ResponseField>
+
+## Advanced Usage
+
+### Custom API URL
+
+```tsx
+const { location, getCurrentLocation } = useLocation({
+  apiUrl: "https://your-custom-geocoding-api.com",
+})
+```
+
+### Custom Geolocation Options
+
+```tsx
+const { location, getCurrentLocation } = useLocation({
+  geolocationOptions: {
+    timeout: 5000,
+    enableHighAccuracy: false,
+    maximumAge: 30000,
+  },
+})
+```
+
+### Manual Coordinate Lookup
+
+```tsx
+const { location, getLocationFromCoordinates } = useLocation()
+
+// Look up a specific location
+getLocationFromCoordinates(40.7128, -74.0060) // New York City
+```
+
+<Note>
+  This hook requires browser support for the Geolocation API. It will only work in secure contexts (HTTPS) and requires user permission to access location data.
+</Note>
+
+<Warning>
+  The default reverse geocoding service (OpenStreetMap Nominatim) has usage limits. For production applications with high traffic, consider using a commercial geocoding service or hosting your own Nominatim instance.
+</Warning>

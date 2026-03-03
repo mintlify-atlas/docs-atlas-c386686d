@@ -1,0 +1,588 @@
+---
+title: TypeScript
+description: TypeScript usage, type exports, and Zod integration in RigidUI components
+---
+
+RigidUI is built with TypeScript first, providing full type safety and excellent IDE support out of the box.
+
+## Type Safety
+
+All RigidUI components are written in TypeScript and export their type definitions, making them easy to use with complete type checking.
+
+### Component Props Types
+
+Every component exports its props interface:
+
+```tsx
+import { AccessGate, AccessGateProps } from "@/components/ui/access-manager"
+import { Button, ButtonProps } from "@/components/ui/button"
+
+// Use exported types for custom wrappers
+function CustomAccessGate(props: AccessGateProps) {
+  return <AccessGate {...props} mode="disable" />
+}
+
+// Extend component props
+interface ExtendedButtonProps extends ButtonProps {
+  icon?: React.ReactNode
+  loading?: boolean
+}
+
+function IconButton({ icon, loading, children, ...props }: ExtendedButtonProps) {
+  return (
+    <Button {...props} disabled={loading || props.disabled}>
+      {loading ? <Loader2 className="animate-spin" /> : icon}
+      {children}
+    </Button>
+  )
+}
+```
+
+### Exported Type Definitions
+
+RigidUI components export comprehensive type definitions:
+
+```tsx
+// Access Manager types
+export interface UserSession {
+  id: string
+  email?: string
+  username?: string
+  name?: string
+  avatar?: string
+  roles: string[]
+  permissions: string[]
+  metadata?: Record<string, unknown>
+  isActive?: boolean
+  expiresAt?: Date | string
+  lastActivity?: Date | string
+  sessionId?: string
+}
+
+export interface RolePermissionMap {
+  [role: string]: string[]
+}
+
+export interface AccessManagerContextType {
+  user: UserSession | null
+  rolePermissionMap: RolePermissionMap
+  hasRole: (role: string | string[]) => boolean
+  hasPermission: (permission: string | string[]) => boolean
+  hasAnyRole: (roles: string[]) => boolean
+  hasAllRoles: (roles: string[]) => boolean
+  hasAnyPermission: (permissions: string[]) => boolean
+  hasAllPermissions: (permissions: string[]) => boolean
+  isSessionValid: () => boolean
+  getSessionTimeRemaining: () => number | null
+  isSessionExpiring: (thresholdMinutes?: number) => boolean
+}
+```
+
+### Using Component Types
+
+```tsx
+import {
+  AccessManagerProvider,
+  UserSession,
+  RolePermissionMap
+} from "@/components/ui/access-manager"
+
+function App() {
+  // Type-safe user session
+  const user: UserSession = {
+    id: '123',
+    email: 'user@example.com',
+    roles: ['admin', 'editor'],
+    permissions: ['read', 'write', 'delete'],
+  }
+
+  // Type-safe role-permission mapping
+  const rolePermissions: RolePermissionMap = {
+    admin: ['read', 'write', 'delete', 'manage_users'],
+    editor: ['read', 'write'],
+    viewer: ['read'],
+  }
+
+  return (
+    <AccessManagerProvider user={user} rolePermissionMap={rolePermissions}>
+      {/* ... */}
+    </AccessManagerProvider>
+  )
+}
+```
+
+## Zod Integration
+
+RigidUI components that handle data validation use Zod for runtime type safety.
+
+### Smart Form with Zod
+
+The Smart Form component uses Zod schemas for validation:
+
+```tsx
+import { SmartForm } from "@/components/ui/smart-form"
+import { z } from "zod"
+
+// Define schema with Zod
+const userSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  age: z.number().min(18, 'Must be at least 18 years old'),
+  role: z.enum(['admin', 'editor', 'viewer']),
+  bio: z.string().max(500, 'Bio must be less than 500 characters').optional(),
+  acceptTerms: z.boolean().refine(val => val === true, {
+    message: 'You must accept the terms and conditions'
+  }),
+})
+
+// TypeScript infers the type from the schema
+type UserFormData = z.infer<typeof userSchema>
+
+function UserForm() {
+  // Type-safe mutation function
+  const createUser = async (data: UserFormData) => {
+    const response = await fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    return response.json()
+  }
+
+  return (
+    <SmartForm
+      schema={userSchema}
+      mutationFn={createUser}
+      onSuccess={(data) => {
+        console.log('User created:', data)
+      }}
+    >
+      {(form) => (
+        <>
+          {/* Form fields */}
+        </>
+      )}
+    </SmartForm>
+  )
+}
+```
+
+### Multi-Step Form with Zod
+
+```tsx
+import { MultiStepFormWrapper } from "@/components/ui/multi-step-form-wrapper"
+import { z } from "zod"
+
+// Define schemas for each step
+const step1Schema = z.object({
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+})
+
+const step2Schema = z.object({
+  email: z.string().email(),
+  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/),
+})
+
+const step3Schema = z.object({
+  company: z.string().min(1),
+  position: z.string().min(1),
+})
+
+// Infer types
+type Step1Data = z.infer<typeof step1Schema>
+type Step2Data = z.infer<typeof step2Schema>
+type Step3Data = z.infer<typeof step3Schema>
+
+// Combined type
+type RegistrationData = Step1Data & Step2Data & Step3Data
+
+function RegistrationForm() {
+  const steps = [
+    {
+      title: 'Personal Info',
+      schema: step1Schema,
+      fields: (form) => (
+        <>
+          <input {...form.register('firstName')} />
+          <input {...form.register('lastName')} />
+        </>
+      ),
+    },
+    {
+      title: 'Contact',
+      schema: step2Schema,
+      fields: (form) => (
+        <>
+          <input {...form.register('email')} type="email" />
+          <input {...form.register('phone')} type="tel" />
+        </>
+      ),
+    },
+    {
+      title: 'Professional',
+      schema: step3Schema,
+      fields: (form) => (
+        <>
+          <input {...form.register('company')} />
+          <input {...form.register('position')} />
+        </>
+      ),
+    },
+  ]
+
+  const handleComplete = async (data: RegistrationData) => {
+    await fetch('/api/register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  return (
+    <MultiStepFormWrapper
+      steps={steps}
+      onComplete={handleComplete}
+    />
+  )
+}
+```
+
+### Complex Validation with Zod
+
+```tsx
+import { z } from "zod"
+
+// Nested objects
+const addressSchema = z.object({
+  street: z.string(),
+  city: z.string(),
+  state: z.string().length(2),
+  zip: z.string().regex(/^\d{5}$/),
+})
+
+// Arrays
+const tagsSchema = z.array(z.string()).min(1).max(5)
+
+// Discriminated unions
+const paymentSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('card'),
+    cardNumber: z.string().length(16),
+    cvv: z.string().length(3),
+  }),
+  z.object({
+    type: z.literal('paypal'),
+    email: z.string().email(),
+  }),
+])
+
+// Conditional validation
+const userSchema = z.object({
+  role: z.enum(['admin', 'user']),
+  permissions: z.array(z.string()),
+}).refine(
+  (data) => data.role === 'admin' ? data.permissions.length > 0 : true,
+  { message: 'Admins must have at least one permission' }
+)
+
+// Transform data
+const dateSchema = z.string().transform((val) => new Date(val))
+
+// Complete form schema
+const orderSchema = z.object({
+  customer: z.object({
+    name: z.string(),
+    email: z.string().email(),
+    address: addressSchema,
+  }),
+  items: z.array(z.object({
+    productId: z.string(),
+    quantity: z.number().min(1),
+    price: z.number().positive(),
+  })),
+  payment: paymentSchema,
+  orderDate: dateSchema,
+  tags: tagsSchema,
+})
+
+type OrderData = z.infer<typeof orderSchema>
+```
+
+## Generic Components
+
+RigidUI components use TypeScript generics for flexible, type-safe APIs:
+
+```tsx
+import { SmartForm, SmartFormProps } from "@/components/ui/smart-form"
+import { FieldValues } from "react-hook-form"
+import { z } from "zod"
+
+// SmartForm is generic over the form data type
+export function SmartForm<T extends FieldValues>({
+  schema,
+  mutationFn,
+  children,
+  ...props
+}: SmartFormProps<T>) {
+  // Type-safe form handling
+  const form = useForm<T>({
+    resolver: zodResolver(schema),
+  })
+
+  return (
+    <Form {...form}>
+      {children(form)}
+    </Form>
+  )
+}
+
+// Usage with type inference
+const schema = z.object({
+  name: z.string(),
+  age: z.number(),
+})
+
+type FormData = z.infer<typeof schema>
+
+<SmartForm<FormData>
+  schema={schema}
+  mutationFn={async (data) => {
+    // data is typed as FormData
+    console.log(data.name, data.age)
+  }}
+>
+  {(form) => (
+    // form is typed as UseFormReturn<FormData>
+    <input {...form.register('name')} />
+  )}
+</SmartForm>
+```
+
+## Custom Hooks with TypeScript
+
+### useAccessManager Hook
+
+```tsx
+import { useAccessManager } from "@/components/ui/access-manager"
+
+function ProtectedComponent() {
+  // Fully typed hook
+  const {
+    user,
+    hasRole,
+    hasPermission,
+    isSessionValid,
+    getSessionTimeRemaining,
+  } = useAccessManager()
+
+  // Type-safe permission checks
+  const canEdit = hasPermission('edit')
+  const isAdmin = hasRole('admin')
+  const hasMultipleRoles = hasRole(['admin', 'editor'])
+
+  // Type-safe session methods
+  const sessionValid: boolean = isSessionValid()
+  const timeRemaining: number | null = getSessionTimeRemaining()
+
+  return (
+    <div>
+      {canEdit && <Button>Edit</Button>}
+      {isAdmin && <Button>Admin Panel</Button>}
+    </div>
+  )
+}
+```
+
+### usePermissionCheck Hook
+
+```tsx
+import { usePermissionCheck } from "@/components/ui/access-manager"
+
+function ConditionalButton() {
+  // Type-safe permission check
+  const hasAccess = usePermissionCheck({
+    roles: ['admin', 'editor'],
+    permissions: ['write'],
+    requireAllRoles: false,
+    requireAllPermissions: true,
+    requireValidSession: true,
+  })
+
+  // hasAccess is typed as boolean
+  return hasAccess ? <Button>Edit</Button> : null
+}
+```
+
+## Type Utilities
+
+### Creating Type-Safe Wrappers
+
+```tsx
+import { ComponentPropsWithoutRef, ElementRef, forwardRef } from 'react'
+import { Button } from '@/components/ui/button'
+
+// Extract component props and ref types
+type ButtonElement = ElementRef<typeof Button>
+type ButtonPropsBase = ComponentPropsWithoutRef<typeof Button>
+
+interface LoadingButtonProps extends ButtonPropsBase {
+  loading?: boolean
+}
+
+// Type-safe forwarded ref component
+const LoadingButton = forwardRef<ButtonElement, LoadingButtonProps>(
+  ({ loading, children, disabled, ...props }, ref) => {
+    return (
+      <Button ref={ref} disabled={loading || disabled} {...props}>
+        {loading && <Loader2 className="animate-spin mr-2" />}
+        {children}
+      </Button>
+    )
+  }
+)
+
+LoadingButton.displayName = 'LoadingButton'
+```
+
+### Discriminated Unions
+
+```tsx
+import { AccessGate } from "@/components/ui/access-manager"
+
+// Define union types for different access modes
+type AccessConfig =
+  | { type: 'role'; roles: string[] }
+  | { type: 'permission'; permissions: string[] }
+  | { type: 'combined'; roles: string[]; permissions: string[] }
+
+function DynamicAccessGate({
+  config,
+  children,
+}: {
+  config: AccessConfig
+  children: React.ReactNode
+}) {
+  // TypeScript narrows the type based on discriminator
+  switch (config.type) {
+    case 'role':
+      return <AccessGate roles={config.roles}>{children}</AccessGate>
+    case 'permission':
+      return <AccessGate permissions={config.permissions}>{children}</AccessGate>
+    case 'combined':
+      return (
+        <AccessGate roles={config.roles} permissions={config.permissions}>
+          {children}
+        </AccessGate>
+      )
+  }
+}
+```
+
+## Type-Safe Event Handlers
+
+```tsx
+import { SmartForm } from "@/components/ui/smart-form"
+import { z } from "zod"
+
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+})
+
+type LoginData = z.infer<typeof schema>
+
+function LoginForm() {
+  // Type-safe event handlers
+  const handleSuccess = (response: { user: UserSession; token: string }) => {
+    console.log('Login successful:', response.user)
+  }
+
+  const handleError = (error: Error) => {
+    console.error('Login failed:', error.message)
+  }
+
+  const login = async (data: LoginData): Promise<{ user: UserSession; token: string }> => {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+    return response.json()
+  }
+
+  return (
+    <SmartForm<LoginData>
+      schema={schema}
+      mutationFn={login}
+      onSuccess={handleSuccess}
+      onError={handleError}
+    >
+      {(form) => (
+        <>
+          {/* Form fields */}
+        </>
+      )}
+    </SmartForm>
+  )
+}
+```
+
+## Best Practices
+
+### 1. Always Export Component Types
+
+```tsx
+// Good: Export all types
+export interface ComponentProps {
+  value: string
+  onChange: (value: string) => void
+}
+
+export function Component(props: ComponentProps) {
+  return <div>{/* ... */}</div>
+}
+```
+
+### 2. Use Type Inference with Zod
+
+```tsx
+// Good: Infer types from schemas
+const schema = z.object({ name: z.string() })
+type FormData = z.infer<typeof schema>
+
+// Avoid: Manually defining duplicate types
+interface FormData {
+  name: string
+}
+```
+
+### 3. Leverage Generic Constraints
+
+```tsx
+import { FieldValues } from 'react-hook-form'
+
+// Good: Generic with constraint
+function FormComponent<T extends FieldValues>(props: Props<T>) {
+  // T is guaranteed to be FieldValues
+}
+```
+
+### 4. Use Strict TypeScript Config
+
+Ensure your `tsconfig.json` has strict mode enabled:
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true
+  }
+}
+```
+
+## Next Steps
+
+- Explore [Component Documentation](/components) for type usage examples
+- Learn about [Customization](/guides/customization) with type-safe patterns
+- Check out [Theming](/guides/theming) for type-safe theme configuration

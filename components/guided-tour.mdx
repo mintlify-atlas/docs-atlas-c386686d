@@ -1,0 +1,436 @@
+---
+title: Guided Tour
+description: Comprehensive guided tour component for interactive step-by-step walkthroughs
+---
+
+## Overview
+
+The Guided Tour component provides an elegant way to onboard users or highlight features in your application. It includes automatic scrolling, smart positioning, progress tracking, and persistent completion state.
+
+## Installation
+
+```bash
+npx shadcn@latest add https://rigidui.com/r/guided-tour.json
+```
+
+## Features
+
+- Step-by-step walkthroughs with highlighting
+- Automatic scrolling to target elements
+- Smart popover positioning (top, bottom, left, right)
+- Progress indicator
+- Search history tracking
+- Automatic tour on first visit
+- Manual tour triggers
+- Keyboard navigation
+- Responsive positioning
+
+## Components
+
+### TourProvider
+
+Root provider that manages tour state and step registration.
+
+### TourStep
+
+Wrapper component that marks an element as a tour step.
+
+### TourTrigger
+
+Button or element that starts the tour when clicked.
+
+## API Reference
+
+### TourProvider Props
+
+<ParamField path="children" type="ReactNode" required>
+  Your application components containing TourStep components
+</ParamField>
+
+<ParamField path="autoStart" type="boolean" default="false">
+  Whether to automatically start the tour when component mounts
+</ParamField>
+
+<ParamField path="ranOnce" type="boolean" default="true">
+  Whether to only run the tour once per user (persisted in localStorage)
+</ParamField>
+
+<ParamField path="storageKey" type="string" default="'rigidui-tour-completed'">
+  localStorage key for tracking tour completion
+</ParamField>
+
+<ParamField path="shouldStart" type="boolean" default="true">
+  Conditional flag to control whether tour should start
+</ParamField>
+
+<ParamField path="onTourComplete" type="() => void">
+  Callback fired when user completes the tour
+</ParamField>
+
+<ParamField path="onTourSkip" type="() => void">
+  Callback fired when user skips the tour
+</ParamField>
+
+### TourStep Props
+
+<ParamField path="id" type="string" required>
+  Unique identifier for this tour step
+</ParamField>
+
+<ParamField path="title" type="string" required>
+  Title displayed in the tour popover
+</ParamField>
+
+<ParamField path="content" type="string" required>
+  Description text for this step
+</ParamField>
+
+<ParamField path="order" type="number" required>
+  Numeric order of this step in the tour sequence
+</ParamField>
+
+<ParamField path="position" type="'top' | 'bottom' | 'left' | 'right'" default="'bottom'">
+  Preferred position of the popover relative to the element
+</ParamField>
+
+<ParamField path="children" type="ReactNode" required>
+  The element to highlight during this step
+</ParamField>
+
+### TourTrigger Props
+
+<ParamField path="children" type="ReactNode" required>
+  Button or element that starts the tour
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS classes for the trigger wrapper
+</ParamField>
+
+<ParamField path="hideAfterComplete" type="boolean" default="false">
+  Whether to hide the trigger after tour is completed
+</ParamField>
+
+<ParamField path="storageKey" type="string" default="'rigidui-tour-completed'">
+  localStorage key to check for completion (must match TourProvider)
+</ParamField>
+
+## Usage Examples
+
+### Basic Tour Setup
+
+```tsx
+import { TourProvider, TourStep, TourTrigger } from '@/components/ui/guided-tour'
+import { Button } from '@/components/ui/button'
+
+function App() {
+  return (
+    <TourProvider autoStart={true} ranOnce={true}>
+      <header>
+        <TourStep
+          id="step-1"
+          title="Welcome!"
+          content="This is the main navigation. Use it to explore different sections."
+          order={1}
+          position="bottom"
+        >
+          <nav className="flex gap-4">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+          </nav>
+        </TourStep>
+
+        <TourTrigger>
+          <Button variant="outline">Start Tour</Button>
+        </TourTrigger>
+      </header>
+
+      <main>
+        <TourStep
+          id="step-2"
+          title="Main Content"
+          content="Your main content appears here. You can scroll through articles and updates."
+          order={2}
+          position="top"
+        >
+          <section>
+            <h1>Main Content Area</h1>
+            <p>Content goes here...</p>
+          </section>
+        </TourStep>
+
+        <TourStep
+          id="step-3"
+          title="Actions"
+          content="Use these buttons to perform common actions."
+          order={3}
+          position="left"
+        >
+          <div className="flex gap-2">
+            <Button>Save</Button>
+            <Button>Share</Button>
+          </div>
+        </TourStep>
+      </main>
+    </TourProvider>
+  )
+}
+```
+
+### Conditional Tour Start
+
+```tsx
+import { TourProvider, TourStep } from '@/components/ui/guided-tour'
+
+function Dashboard({ user }) {
+  // Only show tour for new users
+  const isNewUser = user.createdAt > Date.now() - 86400000 // 24 hours
+
+  return (
+    <TourProvider
+      autoStart={true}
+      shouldStart={isNewUser}
+      onTourComplete={() => {
+        console.log('User completed onboarding tour')
+      }}
+    >
+      {/* Tour steps */}
+    </TourProvider>
+  )
+}
+```
+
+### Manual Tour Control
+
+```tsx
+import { TourProvider, TourStep, useTour } from '@/components/ui/guided-tour'
+import { Button } from '@/components/ui/button'
+
+function HelpMenu() {
+  const { startTour, resetTourCompletion } = useTour()
+
+  return (
+    <div>
+      <Button onClick={startTour}>
+        Take a Tour
+      </Button>
+      <Button variant="ghost" onClick={resetTourCompletion}>
+        Reset Tour Progress
+      </Button>
+    </div>
+  )
+}
+
+function App() {
+  return (
+    <TourProvider autoStart={false}>
+      <HelpMenu />
+      {/* Tour steps */}
+    </TourProvider>
+  )
+}
+```
+
+### Feature Highlight Tour
+
+```tsx
+import { TourProvider, TourStep, TourTrigger } from '@/components/ui/guided-tour'
+import { HelpCircle } from 'lucide-react'
+
+function FeaturePage() {
+  return (
+    <TourProvider
+      storageKey="feature-tour-v2"
+      onTourComplete={() => {
+        // Track completion in analytics
+        analytics.track('feature_tour_completed')
+      }}
+    >
+      <div className="relative">
+        <TourTrigger 
+          hideAfterComplete={true}
+          className="absolute top-4 right-4"
+        >
+          <Button size="icon" variant="ghost">
+            <HelpCircle className="h-5 w-5" />
+          </Button>
+        </TourTrigger>
+
+        <TourStep
+          id="search"
+          title="Smart Search"
+          content="Use our advanced search to find what you need quickly. Supports filters and keyboard shortcuts."
+          order={1}
+          position="bottom"
+        >
+          <SearchBar />
+        </TourStep>
+
+        <TourStep
+          id="filters"
+          title="Filters"
+          content="Apply filters to narrow down your results. Click on any filter to activate it."
+          order={2}
+          position="right"
+        >
+          <FilterPanel />
+        </TourStep>
+
+        <TourStep
+          id="results"
+          title="Results"
+          content="Your search results appear here. Click any item to view details."
+          order={3}
+          position="top"
+        >
+          <ResultsList />
+        </TourStep>
+      </div>
+    </TourProvider>
+  )
+}
+```
+
+### Multi-Page Tour
+
+```tsx
+import { TourProvider, TourStep } from '@/components/ui/guided-tour'
+import { useRouter } from 'next/navigation'
+
+function OnboardingTour() {
+  const router = useRouter()
+
+  return (
+    <TourProvider
+      autoStart={true}
+      ranOnce={true}
+      storageKey="app-onboarding"
+      onTourComplete={() => {
+        router.push('/dashboard')
+      }}
+    >
+      <TourStep
+        id="welcome"
+        title="Welcome to Our App!"
+        content="Let's take a quick tour of the main features."
+        order={1}
+      >
+        <WelcomeSection />
+      </TourStep>
+
+      <TourStep
+        id="profile"
+        title="Your Profile"
+        content="Manage your account settings and preferences here."
+        order={2}
+        position="left"
+      >
+        <ProfileButton />
+      </TourStep>
+
+      <TourStep
+        id="notifications"
+        title="Stay Updated"
+        content="Check your notifications to stay informed about important updates."
+        order={3}
+        position="bottom"
+      >
+        <NotificationBell />
+      </TourStep>
+
+      <TourStep
+        id="finish"
+        title="You're All Set!"
+        content="You're ready to get started. Enjoy exploring the app!"
+        order={4}
+      >
+        <GetStartedButton />
+      </TourStep>
+    </TourProvider>
+  )
+}
+```
+
+### Using the Hook
+
+```tsx
+import { useTour } from '@/components/ui/guided-tour'
+
+function TourControls() {
+  const {
+    startTour,
+    stopTour,
+    nextStep,
+    prevStep,
+    resetTourCompletion,
+    isActive,
+    currentStepIndex,
+    totalSteps
+  } = useTour()
+
+  return (
+    <div className="flex gap-2">
+      <Button onClick={startTour} disabled={isActive}>
+        Start Tour
+      </Button>
+      
+      {isActive && (
+        <>
+          <Button onClick={prevStep} disabled={currentStepIndex === 0}>
+            Previous
+          </Button>
+          <Button onClick={nextStep}>
+            {currentStepIndex === totalSteps - 1 ? 'Finish' : 'Next'}
+          </Button>
+          <Button onClick={stopTour} variant="outline">
+            Skip Tour
+          </Button>
+        </>
+      )}
+      
+      <Button onClick={resetTourCompletion} variant="ghost">
+        Reset Tour
+      </Button>
+
+      {isActive && (
+        <span className="text-sm text-muted-foreground">
+          Step {currentStepIndex + 1} of {totalSteps}
+        </span>
+      )}
+    </div>
+  )
+}
+```
+
+## Styling
+
+The tour uses these z-index layers:
+- Overlay: 10001
+- Highlighted element: 10002
+- Popover: 10003
+
+Make sure these values don't conflict with your existing z-index hierarchy.
+
+## Accessibility
+
+- Keyboard navigation support (Next, Previous, Skip)
+- Automatic scrolling to highlighted elements
+- Focus management
+- Screen reader friendly progress indicators
+
+<Note>
+The tour automatically disables mouse wheel scrolling while active to prevent users from accidentally scrolling away from highlighted elements.
+</Note>
+
+<Tip>
+For the best user experience:
+- Keep tour steps concise (1-2 sentences)
+- Use 4-7 steps per tour
+- Position popovers where they won't overlap important content
+- Test on different screen sizes
+</Tip>
+
+<Warning>
+The tour modifies the DOM by adding `data-tour-step` attributes. Ensure your test scripts account for these attributes if you're using element selectors.
+</Warning>

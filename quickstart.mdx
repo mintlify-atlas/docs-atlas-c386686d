@@ -1,80 +1,327 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quick Start
+description: Get up and running with RigidUI in minutes with a complete working example
 ---
 
-## Get started in three steps
+## Your First Component
 
-Get your documentation site running locally and make your first customization.
+This guide will walk you through installing and using your first RigidUI component. We'll use the **Text Shift** component, which creates beautiful animated text transitions.
 
-### Step 1: Set up your local environment
-
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+<Steps>
+  <Step title="Install the Component">
+    First, install the Text Shift component using the shadcn CLI:
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    <CodeGroup>
+    ```bash npm
+    npx shadcn@latest add https://rigidui.com/r/text-shift.json
+    ```
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+    ```bash yarn
+    npx shadcn@latest add https://rigidui.com/r/text-shift.json
+    ```
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    ```bash pnpm
+    npx shadcn@latest add https://rigidui.com/r/text-shift.json
+    ```
+    </CodeGroup>
+    
+    This will:
+    - Add `text-shift.tsx` to your `components/ui` directory
+    - Install the `motion` dependency (if not already installed)
+    - Set up all necessary utilities
+  </Step>
+  
+  <Step title="Import the Component">
+    Import the Text Shift component in your page or component:
+    
+    ```tsx app/page.tsx
+    import TextShift from "@/components/ui/text-shift"
+    ```
+  </Step>
+  
+  <Step title="Use the Component">
+    Add the Text Shift component to your UI:
+    
+    ```tsx app/page.tsx
+    export default function Home() {
+      return (
+        <main className="flex min-h-screen items-center justify-center">
+          <TextShift
+            primaryText="Hello World"
+            secondaryText="Welcome to RigidUI"
+            className="text-4xl"
+          />
+        </main>
+      )
+    }
+    ```
+  </Step>
+  
+  <Step title="Run Your App">
+    Start your development server and see the animated text in action:
+    
+    <CodeGroup>
+    ```bash npm
+    npm run dev
+    ```
+    
+    ```bash yarn
+    yarn dev
+    ```
+    
+    ```bash pnpm
+    pnpm dev
+    ```
+    </CodeGroup>
+    
+    Hover over the text to see the smooth transition animation!
+  </Step>
+</Steps>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+<Tip>
+  The Text Shift component animates letter-by-letter with a staggered effect, creating a smooth and engaging transition between two text strings.
+</Tip>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+## Complete Example
 
-### Step 3: Go live
+Here's a complete working example with all the code you need:
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+```tsx app/page.tsx
+"use client"
 
-## Next steps
+import TextShift from "@/components/ui/text-shift"
 
-Now that you have your docs running, explore these key features:
+export default function Home() {
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center gap-8 p-24">
+      <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+        Hover over the text below
+      </h1>
+      
+      <TextShift
+        primaryText="Hello World"
+        secondaryText="Welcome to RigidUI"
+        className="text-6xl"
+        primaryTextColor="text-black dark:text-white"
+        secondaryTextColor="text-purple-600 dark:text-purple-400"
+        duration={0.8}
+        staggerDelay={0.04}
+      />
+      
+      <p className="text-gray-600 dark:text-gray-400 max-w-md text-center">
+        This is the Text Shift component from RigidUI. It creates beautiful 
+        animated transitions between two text strings with staggered letter animations.
+      </p>
+    </main>
+  )
+}
+```
 
-<CardGroup cols={2}>
+## Customizing the Component
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+The Text Shift component accepts several props for customization:
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+<ResponseField name="primaryText" type="string" required>
+  The initial text to display
+</ResponseField>
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+<ResponseField name="secondaryText" type="string" required>
+  The text to transition to on hover
+</ResponseField>
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+<ResponseField name="className" type="string">
+  Additional CSS classes for styling
+</ResponseField>
 
-</CardGroup>
+<ResponseField name="primaryTextColor" type="string" default="text-black">
+  Tailwind class for primary text color
+</ResponseField>
+
+<ResponseField name="secondaryTextColor" type="string" default="text-gray-400">
+  Tailwind class for secondary text color
+</ResponseField>
+
+<ResponseField name="duration" type="number" default={1}>
+  Animation duration in seconds
+</ResponseField>
+
+<ResponseField name="staggerDelay" type="number" default={0.05}>
+  Delay between each letter's animation in seconds
+</ResponseField>
+
+<ResponseField name="easing" type="Easing" default="[0.165, 0.84, 0.44, 1]">
+  Motion easing function for the animation
+</ResponseField>
+
+## Try Another Component: Data Reveal
+
+Let's try a more advanced component - the **Data Reveal** component, which reveals sensitive information with beautiful animations:
+
+<Steps>
+  <Step title="Install Data Reveal">
+    ```bash
+    npx shadcn@latest add https://rigidui.com/r/data-reveal.json
+    ```
+  </Step>
+  
+  <Step title="Use the Component">
+    ```tsx app/page.tsx
+    import { DataReveal } from "@/components/ui/data-reveal"
+    
+    export default function Home() {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <DataReveal autoHide autoHideDelay={5000}>
+            <DataReveal.Button 
+              text="Show API Key" 
+              className="text-white"
+            />
+            <DataReveal.Container>
+              <DataReveal.Item content="sk-proj" index={0} />
+              <DataReveal.Item content="1234567890" index={1} />
+              <DataReveal.Item content="abcdefgh" index={2} />
+            </DataReveal.Container>
+          </DataReveal>
+        </div>
+      )
+    }
+    ```
+  </Step>
+</Steps>
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  The Data Reveal component uses a compound component pattern. This allows you to compose the button, container, and items flexibly while maintaining shared state.
 </Note>
+
+## Component Composition
+
+The Data Reveal component demonstrates RigidUI's compound component pattern:
+
+- `<DataReveal>` - Root component that manages state
+- `<DataReveal.Button>` - Toggle button to reveal/hide
+- `<DataReveal.Container>` - Container for revealed items with animations
+- `<DataReveal.Item>` - Individual items that appear with staggered animations
+
+```tsx Example with Props
+<DataReveal 
+  defaultRevealed={false}
+  autoHide={true}
+  autoHideDelay={3000}
+  onToggle={(isRevealed) => console.log('Revealed:', isRevealed)}
+>
+  <DataReveal.Button className="bg-blue-500 text-white">
+    Click to Reveal
+  </DataReveal.Button>
+  
+  <DataReveal.Container className="gap-3">
+    <DataReveal.Item content="Hidden" index={0} className="bg-gray-100" />
+    <DataReveal.Item content="Content" index={1} className="bg-gray-100" />
+    <DataReveal.Item content="Here" index={2} className="bg-gray-100" />
+  </DataReveal.Container>
+</DataReveal>
+```
+
+## Exploring More Components
+
+Now that you've successfully installed and used RigidUI components, explore more:
+
+<CardGroup cols={2}>
+  <Card title="Smart Form" icon="input" href="/components/smart-form">
+    Zod-powered forms with TanStack Query integration and automatic validation
+  </Card>
+  
+  <Card title="File Uploader" icon="upload" href="/components/file-uploader">
+    Drag-and-drop file upload with previews, validation, and progress tracking
+  </Card>
+  
+  <Card title="Guided Tour" icon="map" href="/components/guided-tour">
+    Interactive step-by-step walkthroughs to onboard users and showcase features
+  </Card>
+  
+  <Card title="Notification Center" icon="bell" href="/components/notification-center">
+    Comprehensive notification management with categories and actions
+  </Card>
+</CardGroup>
+
+## Common Patterns
+
+### Client-Side Components
+
+Many RigidUI components use client-side features (animations, state, events). Make sure to use the `"use client"` directive:
+
+```tsx app/components/my-component.tsx
+"use client"
+
+import TextShift from "@/components/ui/text-shift"
+
+export default function MyComponent() {
+  return (
+    <TextShift 
+      primaryText="Client"
+      secondaryText="Component"
+    />
+  )
+}
+```
+
+### Dark Mode Support
+
+All RigidUI components support dark mode. Use Tailwind's dark mode classes:
+
+```tsx
+<TextShift
+  primaryText="Light Mode"
+  secondaryText="Dark Mode"
+  primaryTextColor="text-gray-900 dark:text-white"
+  secondaryTextColor="text-blue-600 dark:text-blue-400"
+/>
+```
+
+### Combining Components
+
+RigidUI components work great together:
+
+```tsx
+import { DataReveal } from "@/components/ui/data-reveal"
+import TextShift from "@/components/ui/text-shift"
+
+export default function Dashboard() {
+  return (
+    <div className="space-y-8">
+      <TextShift
+        primaryText="Dashboard"
+        secondaryText="Welcome Back"
+        className="text-5xl"
+      />
+      
+      <DataReveal>
+        <DataReveal.Button text="View Credentials" />
+        <DataReveal.Container>
+          <DataReveal.Item content="API Key" index={0} />
+          <DataReveal.Item content="Secret" index={1} />
+        </DataReveal.Container>
+      </DataReveal>
+    </div>
+  )
+}
+```
+
+## Next Steps
+
+<CardGroup cols={3}>
+  <Card title="Browse All Components" icon="grid" href="/components">
+    Explore the full library of enterprise-grade components
+  </Card>
+  
+  <Card title="View Live Examples" icon="eye" href="https://examples.rigidui.com">
+    See interactive demos and real-world usage examples
+  </Card>
+  
+  <Card title="GitHub Repository" icon="github" href="https://github.com/FgrReloaded/rigidui">
+    Star the repo, view source code, and contribute
+  </Card>
+</CardGroup>
+
+<Warning>
+  Remember to install component dependencies when prompted by the shadcn CLI. Some components require additional packages like `motion`, `@tanstack/react-query`, or `@dnd-kit/core`.
+</Warning>

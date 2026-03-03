@@ -1,0 +1,308 @@
+---
+title: Installation
+description: Set up your project with Tailwind CSS, shadcn/ui, and TypeScript to start using RigidUI components
+---
+
+## Prerequisites
+
+Before installing RigidUI components, ensure your project has the following setup:
+
+<Steps>
+  <Step title="Tailwind CSS">
+    RigidUI components use Tailwind CSS for styling. Install and configure Tailwind CSS in your project:
+    
+    <CodeGroup>
+    ```bash npm
+    npm install -D tailwindcss postcss autoprefixer
+    npx tailwindcss init -p
+    ```
+    
+    ```bash yarn
+    yarn add -D tailwindcss postcss autoprefixer
+    npx tailwindcss init -p
+    ```
+    
+    ```bash pnpm
+    pnpm add -D tailwindcss postcss autoprefixer
+    npx tailwindcss init -p
+    ```
+    </CodeGroup>
+    
+    Configure your `tailwind.config.js` to include your component paths:
+    
+    ```js tailwind.config.js
+    /** @type {import('tailwindcss').Config} */
+    module.exports = {
+      content: [
+        "./app/**/*.{js,ts,jsx,tsx,mdx}",
+        "./components/**/*.{js,ts,jsx,tsx,mdx}",
+      ],
+      theme: {
+        extend: {},
+      },
+      plugins: [],
+    }
+    ```
+  </Step>
+  
+  <Step title="shadcn/ui">
+    RigidUI is built on top of shadcn/ui. Initialize shadcn/ui in your project:
+    
+    <CodeGroup>
+    ```bash npm
+    npx shadcn@latest init
+    ```
+    
+    ```bash yarn
+    npx shadcn@latest init
+    ```
+    
+    ```bash pnpm
+    npx shadcn@latest init
+    ```
+    </CodeGroup>
+    
+    Follow the prompts to configure your project. This will set up:
+    - Component directory structure
+    - Tailwind CSS configuration
+    - CSS variables for theming
+    - Utility functions
+  </Step>
+  
+  <Step title="TypeScript">
+    RigidUI components are built with TypeScript. Ensure your project has TypeScript configured:
+    
+    <CodeGroup>
+    ```bash npm
+    npm install -D typescript @types/node @types/react @types/react-dom
+    npx tsc --init
+    ```
+    
+    ```bash yarn
+    yarn add -D typescript @types/node @types/react @types/react-dom
+    npx tsc --init
+    ```
+    
+    ```bash pnpm
+    pnpm add -D typescript @types/node @types/react @types/react-dom
+    npx tsc --init
+    ```
+    </CodeGroup>
+  </Step>
+</Steps>
+
+<Note>
+  If you're starting a new project, consider using Next.js with TypeScript and Tailwind CSS pre-configured:
+  
+  ```bash
+  npx create-next-app@latest my-app --typescript --tailwind --app
+  ```
+</Note>
+
+## Installing Components
+
+Once your project meets the prerequisites, you can install any RigidUI component using the shadcn CLI:
+
+### Basic Installation
+
+Use the `npx shadcn@latest add` command with the component's registry URL:
+
+```bash
+npx shadcn@latest add https://rigidui.com/r/[component-name].json
+```
+
+<Tip>
+  Replace `[component-name]` with the actual component name, such as `data-reveal`, `text-shift`, or `smart-form`.
+</Tip>
+
+### Component Categories
+
+<Tabs>
+  <Tab title="Creative Components">
+    Install creative components for animations and interactions:
+    
+    <CodeGroup>
+    ```bash Data Reveal
+    npx shadcn@latest add https://rigidui.com/r/data-reveal.json
+    ```
+    
+    ```bash Draggable Canvas
+    npx shadcn@latest add https://rigidui.com/r/draggable-canvas.json
+    ```
+    
+    ```bash Text Shift
+    npx shadcn@latest add https://rigidui.com/r/text-shift.json
+    ```
+    </CodeGroup>
+  </Tab>
+  
+  <Tab title="Core Components">
+    Install core enterprise components:
+    
+    <CodeGroup>
+    ```bash Access Manager
+    npx shadcn@latest add https://rigidui.com/r/access-manager.json
+    ```
+    
+    ```bash Currency Manager
+    npx shadcn@latest add https://rigidui.com/r/currency-manager.json
+    ```
+    
+    ```bash Guided Tour
+    npx shadcn@latest add https://rigidui.com/r/guided-tour.json
+    ```
+    
+    ```bash Image Loader (Web)
+    npx shadcn@latest add https://rigidui.com/r/image-loader.json
+    ```
+    
+    ```bash Location Picker (Web)
+    npx shadcn@latest add https://rigidui.com/r/location-picker.json
+    ```
+    
+    ```bash Smart Search
+    npx shadcn@latest add https://rigidui.com/r/smart-search.json
+    ```
+    </CodeGroup>
+  </Tab>
+  
+  <Tab title="Form Elements">
+    Install form components:
+    
+    <CodeGroup>
+    ```bash File Uploader (Web)
+    npx shadcn@latest add https://rigidui.com/r/file-uploader.json
+    ```
+    
+    ```bash Multi-Step Form
+    npx shadcn@latest add https://rigidui.com/r/multi-step-form-wrapper.json
+    ```
+    
+    ```bash Password Strength
+    npx shadcn@latest add https://rigidui.com/r/strength-meter.json
+    ```
+    
+    ```bash Smart Form
+    npx shadcn@latest add https://rigidui.com/r/smart-form.json
+    ```
+    </CodeGroup>
+  </Tab>
+  
+  <Tab title="Data Display">
+    Install data display components:
+    
+    <CodeGroup>
+    ```bash Content Grid
+    npx shadcn@latest add https://rigidui.com/r/content-grid.json
+    ```
+    
+    ```bash File Explorer
+    npx shadcn@latest add https://rigidui.com/r/file-explorer.json
+    ```
+    
+    ```bash Infinite Scroll (Web)
+    npx shadcn@latest add https://rigidui.com/r/infinite-scroll.json
+    ```
+    
+    ```bash Notification Center
+    npx shadcn@latest add https://rigidui.com/r/notification-center.json
+    ```
+    </CodeGroup>
+  </Tab>
+  
+  <Tab title="Hooks">
+    Install custom hooks:
+    
+    <CodeGroup>
+    ```bash useLocation Hook
+    npx shadcn@latest add https://rigidui.com/r/use-location.json
+    ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+## What Gets Installed?
+
+When you install a RigidUI component:
+
+1. **Component Files** - Added to your `components/ui` directory (or your configured components directory)
+2. **Dependencies** - Any required npm packages are automatically installed
+3. **Registry Dependencies** - Required shadcn/ui components are automatically added
+4. **Utilities** - Helper functions and utilities are added if needed
+
+<Warning>
+  Components are copied to your project, not installed as npm dependencies. This gives you complete control but means updates require manually re-installing components.
+</Warning>
+
+## React Native Components
+
+Some components have React Native versions for cross-platform development:
+
+<CodeGroup>
+```bash Image Loader (React Native)
+npx shadcn@latest add https://rigidui.com/r/image-loader-rn.json
+```
+
+```bash Location Picker (React Native)
+npx shadcn@latest add https://rigidui.com/r/location-picker-rn.json
+```
+
+```bash File Uploader (React Native)
+npx shadcn@latest add https://rigidui.com/r/file-uploader-rn.json
+```
+
+```bash Infinite Scroll (React Native)
+npx shadcn@latest add https://rigidui.com/r/infinite-scroll-rn.json
+```
+</CodeGroup>
+
+<Note>
+  React Native components require additional setup specific to React Native development. Refer to individual component documentation for platform-specific requirements.
+</Note>
+
+## Verifying Installation
+
+After installing a component, you should see:
+
+- Component file(s) in your `components/ui` directory
+- New dependencies in your `package.json` (if the component requires them)
+- TypeScript definitions working in your editor
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Component not found error">
+    Ensure you've initialized shadcn/ui with `npx shadcn@latest init` and that your components directory is correctly configured in `components.json`.
+  </Accordion>
+  
+  <Accordion title="TypeScript errors after installation">
+    Make sure all peer dependencies are installed. Run `npm install` (or `yarn`/`pnpm`) to ensure all dependencies are up to date.
+  </Accordion>
+  
+  <Accordion title="Styling not working">
+    Verify that:
+    - Tailwind CSS is properly configured
+    - Your CSS files include the Tailwind directives
+    - The `tailwind.config.js` content array includes your component paths
+  </Accordion>
+  
+  <Accordion title="Motion/animation errors">
+    Some components use the `motion` library. Install it if you see errors:
+    
+    ```bash
+    npm install motion
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Follow a complete example to install and use your first RigidUI component.
+  </Card>
+  
+  <Card title="Browse Components" icon="grid" href="/components">
+    Explore all available components with live examples and API documentation.
+  </Card>
+</CardGroup>

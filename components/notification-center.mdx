@@ -1,0 +1,433 @@
+---
+title: Notification Center
+description: A comprehensive notification center component with real-time updates, filtering, and browser notifications support powered by TanStack Query.
+---
+
+<ComponentPreview name="notification-center-demo" />
+
+## Installation
+
+<Tabs defaultValue="cli">
+
+<TabsItem value="cli">
+
+```bash
+npx rigidui@latest add notification-center
+```
+
+</TabsItem>
+
+<TabsItem value="manual">
+
+<Steps>
+
+<Step>
+
+Install the required dependencies:
+
+```bash
+npm install @tanstack/react-query
+```
+
+</Step>
+
+<Step>
+
+Install the shadcn/ui dependencies:
+
+```bash
+npx shadcn@latest add button badge popover card scroll-area dropdown-menu
+```
+
+</Step>
+
+<Step>
+
+Copy and paste the following code into your project:
+
+<ComponentSource name="notification-center" />
+
+</Step>
+
+<Step>
+
+Wrap your app with QueryClientProvider:
+
+```tsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      {/* Your app */}
+    </QueryClientProvider>
+  )
+}
+```
+
+</Step>
+
+</Steps>
+
+</TabsItem>
+
+</Tabs>
+
+## Usage
+
+```tsx
+import { NotificationCenter } from "@/components/ui/notification-center"
+
+const notifications = [
+  {
+    id: '1',
+    title: 'New message',
+    message: 'You have a new message from John',
+    isRead: false,
+    createdAt: new Date().toISOString(),
+    priority: 'high'
+  },
+  {
+    id: '2',
+    title: 'Update available',
+    message: 'A new version of the app is available',
+    isRead: true,
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+    priority: 'medium'
+  }
+]
+
+export default function Demo() {
+  return (
+    <NotificationCenter
+      notifications={notifications}
+      onMarkAsRead={(id) => console.log('Marked as read:', id)}
+      onDeleteNotification={(id) => console.log('Deleted:', id)}
+    />
+  )
+}
+```
+
+## Examples
+
+### Full View
+
+<ComponentPreview name="notification-center-demo" />
+
+### Popover Variant
+
+Display notifications in a compact popover:
+
+```tsx
+import { NotificationCenter } from "@/components/ui/notification-center"
+
+export default function PopoverDemo() {
+  return (
+    <NotificationCenter
+      variant="popover"
+      notifications={notifications}
+      onNotificationClick={(notification) => {
+        console.log('Clicked:', notification)
+      }}
+    />
+  )
+}
+```
+
+### With API Integration
+
+Integrate with your backend API:
+
+```tsx
+import { NotificationCenter } from "@/components/ui/notification-center"
+
+const fetchNotifications = async () => {
+  const response = await fetch('/api/notifications')
+  return response.json()
+}
+
+const markAsRead = async (id: string) => {
+  await fetch(`/api/notifications/${id}/read`, { method: 'POST' })
+}
+
+const markAllAsRead = async () => {
+  await fetch('/api/notifications/read-all', { method: 'POST' })
+}
+
+const deleteNotification = async (id: string) => {
+  await fetch(`/api/notifications/${id}`, { method: 'DELETE' })
+}
+
+export default function APIDemo() {
+  return (
+    <NotificationCenter
+      fetchNotifications={fetchNotifications}
+      onMarkAsRead={markAsRead}
+      onMarkAllAsRead={markAllAsRead}
+      onDeleteNotification={deleteNotification}
+    />
+  )
+}
+```
+
+<Callout>
+When using API functions, the component automatically manages the state using TanStack Query. You don't need to provide the `notifications` prop.
+</Callout>
+
+### Real-Time Updates
+
+Enable automatic polling for new notifications:
+
+```tsx
+import { NotificationCenter } from "@/components/ui/notification-center"
+
+export default function RealTimeDemo() {
+  return (
+    <NotificationCenter
+      fetchNotifications={fetchNotifications}
+      enableRealTimeUpdates={true}
+      updateInterval={30000} // Poll every 30 seconds
+      onMarkAsRead={markAsRead}
+      onDeleteNotification={deleteNotification}
+    />
+  )
+}
+```
+
+### Browser Notifications
+
+Enable native browser notifications:
+
+```tsx
+import { NotificationCenter } from "@/components/ui/notification-center"
+
+export default function BrowserNotificationsDemo() {
+  return (
+    <NotificationCenter
+      fetchNotifications={fetchNotifications}
+      enableBrowserNotifications={true}
+      enableRealTimeUpdates={true}
+      updateInterval={30000}
+      onMarkAsRead={markAsRead}
+    />
+  )
+}
+```
+
+<Callout type="warning">
+Browser notifications require user permission. The component will automatically request permission when `enableBrowserNotifications` is enabled.
+</Callout>
+
+### Custom Empty State
+
+```tsx
+import { NotificationCenter } from "@/components/ui/notification-center"
+
+export default function CustomEmptyDemo() {
+  return (
+    <NotificationCenter
+      notifications={[]}
+      emptyState={{
+        title: "All clear!",
+        description: "You're all caught up. No notifications at the moment."
+      }}
+    />
+  )
+}
+```
+
+### Without Filters
+
+```tsx
+import { NotificationCenter } from "@/components/ui/notification-center"
+
+export default function NoFiltersDemo() {
+  return (
+    <NotificationCenter
+      notifications={notifications}
+      showFilter={false}
+      showMarkAllRead={false}
+    />
+  )
+}
+```
+
+### Click Handler
+
+Handle notification clicks:
+
+```tsx
+import { NotificationCenter } from "@/components/ui/notification-center"
+import { useRouter } from 'next/navigation'
+
+export default function ClickHandlerDemo() {
+  const router = useRouter()
+
+  return (
+    <NotificationCenter
+      variant="popover"
+      notifications={notifications}
+      onNotificationClick={(notification) => {
+        // Navigate to relevant page
+        router.push(`/notifications/${notification.id}`)
+      }}
+    />
+  )
+}
+```
+
+## API Reference
+
+### NotificationCenter
+
+<ParamField path="variant" type="'full' | 'popover'" default="'full'">
+  Display variant. Use 'full' for a complete card view or 'popover' for a compact popover.
+</ParamField>
+
+<ParamField path="notifications" type="Notification[]">
+  Static array of notifications. Use this for controlled state or when not using API functions.
+</ParamField>
+
+<ParamField path="fetchNotifications" type="() => Promise<Notification[]>">
+  Function to fetch notifications from your API.
+</ParamField>
+
+<ParamField path="onMarkAsRead" type="(id: string) => Promise<void>">
+  Callback to mark a notification as read.
+</ParamField>
+
+<ParamField path="onMarkAllAsRead" type="() => Promise<void>">
+  Callback to mark all notifications as read.
+</ParamField>
+
+<ParamField path="onDeleteNotification" type="(id: string) => Promise<void>">
+  Callback to delete a notification.
+</ParamField>
+
+<ParamField path="onNotificationClick" type="(notification: Notification) => void">
+  Callback fired when a notification is clicked.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes for the component.
+</ParamField>
+
+<ParamField path="showFilter" type="boolean" default="true">
+  Whether to show the filter toggle button.
+</ParamField>
+
+<ParamField path="showMarkAllRead" type="boolean" default="true">
+  Whether to show the mark all as read button.
+</ParamField>
+
+<ParamField path="enableRealTimeUpdates" type="boolean" default="false">
+  Enable automatic polling for new notifications.
+</ParamField>
+
+<ParamField path="updateInterval" type="number" default="30000">
+  Polling interval in milliseconds when real-time updates are enabled.
+</ParamField>
+
+<ParamField path="enableBrowserNotifications" type="boolean" default="false">
+  Enable native browser notifications for new unread notifications.
+</ParamField>
+
+<ParamField path="emptyState" type="object">
+  Custom empty state configuration.
+  
+  ```ts
+  {
+    title?: string
+    description?: string
+  }
+  ```
+</ParamField>
+
+### Types
+
+#### Notification
+
+```ts
+interface Notification {
+  id: string
+  title: string
+  message: string
+  isRead: boolean
+  createdAt: string // ISO 8601 date string
+  priority?: 'low' | 'medium' | 'high'
+}
+```
+
+#### NotificationCenterProps
+
+```ts
+interface NotificationCenterProps {
+  className?: string
+  variant?: 'full' | 'popover'
+  notifications?: Notification[]
+  fetchNotifications?: () => Promise<Notification[]>
+  onMarkAsRead?: (id: string) => Promise<void>
+  onMarkAllAsRead?: () => Promise<void>
+  onDeleteNotification?: (id: string) => Promise<void>
+  onNotificationClick?: (notification: Notification) => void
+  showFilter?: boolean
+  showMarkAllRead?: boolean
+  enableRealTimeUpdates?: boolean
+  updateInterval?: number
+  enableBrowserNotifications?: boolean
+  emptyState?: {
+    title?: string
+    description?: string
+  }
+}
+```
+
+## Features
+
+- **Two Display Variants**: Full card view or compact popover
+- **Real-Time Updates**: Automatic polling with configurable intervals
+- **Browser Notifications**: Native OS notifications for new items
+- **Priority Levels**: Support for low, medium, and high priority notifications
+- **Filtering**: Toggle between all and unread notifications
+- **Bulk Actions**: Mark all as read functionality
+- **Individual Actions**: Mark as read or delete per notification
+- **Time Formatting**: Automatic relative time display (e.g., "2h ago")
+- **Unread Count**: Visual badge showing unread notification count
+- **Empty States**: Customizable empty state messages
+- **Loading States**: Built-in loading indicators
+- **Accessibility**: Full keyboard navigation and screen reader support
+- **State Management**: Powered by TanStack Query for optimal caching and updates
+- **TypeScript**: Full type safety with TypeScript
+
+<Callout type="info">
+The component uses TanStack Query internally to manage server state. This provides automatic caching, background refetching, and optimistic updates out of the box.
+</Callout>
+
+## Priority Badges
+
+The component automatically displays priority badges with appropriate colors:
+
+- **High**: Red destructive badge
+- **Medium**: Yellow default badge  
+- **Low**: Green secondary badge
+
+Priority icons also use color coding:
+- High: Red bell icon
+- Medium: Yellow bell icon
+- Low: Green bell icon
+
+## Time Formatting
+
+The component automatically formats timestamps into relative time:
+- Less than 1 minute: "Just now"
+- Less than 1 hour: "Xm ago"
+- Less than 24 hours: "Xh ago"
+- 24+ hours: "Xd ago"
+
+## Dependencies
+
+- `@tanstack/react-query` - For state management and data fetching
+- `lucide-react` - For icons
+- `@radix-ui/react-*` (via shadcn/ui) - For UI primitives

@@ -1,0 +1,436 @@
+---
+title: Draggable Dashboard
+description: Interactive drag-and-drop dashboard with customizable widgets and persistent layout
+---
+
+## Overview
+
+The Draggable Dashboard component enables users to create customizable dashboard layouts by dragging and dropping widgets. It includes automatic layout persistence, responsive grid systems, and lock/unlock functionality to prevent accidental changes.
+
+## Installation
+
+```bash
+npx shadcn@latest add https://rigidui.com/r/draggable-dashboard.json
+```
+
+## Dependencies
+
+This component requires `@dnd-kit` packages:
+
+```bash
+npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities
+```
+
+## Features
+
+- Drag-and-drop widget reordering
+- Responsive grid layout (1-12 columns)
+- Lock/unlock layout editing
+- Persistent layout (localStorage)
+- Widget spanning (multi-column/row)
+- Keyboard navigation support
+- Smooth animations and transitions
+
+## Components
+
+### DraggableDashboard
+
+Main container component that manages the drag-and-drop grid.
+
+### DraggableWrapper
+
+Wrapper component for individual dashboard widgets.
+
+## API Reference
+
+### DraggableDashboard Props
+
+<ParamField path="children" type="ReactNode" required>
+  Dashboard widgets wrapped in DraggableWrapper components
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes for the dashboard container
+</ParamField>
+
+<ParamField path="showLockToggle" type="boolean" default="true">
+  Whether to show the lock/unlock toggle control
+</ParamField>
+
+<ParamField path="showHandles" type="boolean" default="true">
+  Whether to show drag handles on widgets
+</ParamField>
+
+<ParamField path="gridCols" type="number" default="3">
+  Number of grid columns (1-12) on large screens
+</ParamField>
+
+<ParamField path="gap" type="number" default="6">
+  Gap size between grid items (1-12, corresponds to Tailwind spacing)
+</ParamField>
+
+<ParamField path="defaultLocked" type="boolean" default="false">
+  Whether the dashboard is locked by default
+</ParamField>
+
+<ParamField path="onOrderChange" type="(newOrder: string[]) => void">
+  Callback fired when widget order changes
+</ParamField>
+
+<ParamField path="persistenceKey" type="string" default="'draggable-dashboard-order'">
+  localStorage key for persisting widget order
+</ParamField>
+
+### DraggableWrapper Props
+
+<ParamField path="id" type="string" required>
+  Unique identifier for the widget
+</ParamField>
+
+<ParamField path="children" type="ReactNode" required>
+  Widget content
+</ParamField>
+
+<ParamField path="gridSize" type="{ cols: number, rows: number }" default="{ cols: 1, rows: 1 }">
+  Number of grid columns and rows the widget should span
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes for the wrapper
+</ParamField>
+
+<ParamField path="isLocked" type="boolean">
+  Whether this specific widget is locked (managed by parent)
+</ParamField>
+
+<ParamField path="showHandle" type="boolean">
+  Whether to show the drag handle (managed by parent)
+</ParamField>
+
+<ParamField path="availableCols" type="number">
+  Available columns based on screen size (managed by parent)
+</ParamField>
+
+## Usage Examples
+
+### Basic Dashboard
+
+```tsx
+import DraggableDashboard, { DraggableWrapper } from '@/components/ui/draggable-dashboard'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
+function Dashboard() {
+  return (
+    <DraggableDashboard>
+      <DraggableWrapper id="widget-1">
+        <Card>
+          <CardHeader>
+            <CardTitle>Sales Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Your sales data here</p>
+          </CardContent>
+        </Card>
+      </DraggableWrapper>
+
+      <DraggableWrapper id="widget-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Orders</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Order list here</p>
+          </CardContent>
+        </Card>
+      </DraggableWrapper>
+
+      <DraggableWrapper id="widget-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Analytics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Charts and metrics here</p>
+          </CardContent>
+        </Card>
+      </DraggableWrapper>
+    </DraggableDashboard>
+  )
+}
+```
+
+### Custom Grid Layout
+
+```tsx
+import DraggableDashboard, { DraggableWrapper } from '@/components/ui/draggable-dashboard'
+
+function CustomDashboard() {
+  return (
+    <DraggableDashboard
+      gridCols={4} // 4 columns on large screens
+      gap={4} // Smaller gap between widgets
+      defaultLocked={false}
+    >
+      {/* Spans 2 columns, 1 row */}
+      <DraggableWrapper id="header" gridSize={{ cols: 2, rows: 1 }}>
+        <Card className="h-full">
+          <CardContent className="p-6">
+            <h2>Welcome Dashboard</h2>
+          </CardContent>
+        </Card>
+      </DraggableWrapper>
+
+      {/* Spans 1 column, 2 rows */}
+      <DraggableWrapper id="sidebar" gridSize={{ cols: 1, rows: 2 }}>
+        <Card className="h-full">
+          <CardContent className="p-6">
+            <p>Tall sidebar widget</p>
+          </CardContent>
+        </Card>
+      </DraggableWrapper>
+
+      {/* Regular 1x1 widgets */}
+      <DraggableWrapper id="widget-1">
+        <Card className="h-full">
+          <CardContent className="p-6">Widget 1</CardContent>
+        </Card>
+      </DraggableWrapper>
+
+      <DraggableWrapper id="widget-2">
+        <Card className="h-full">
+          <CardContent className="p-6">Widget 2</CardContent>
+        </Card>
+      </DraggableWrapper>
+    </DraggableDashboard>
+  )
+}
+```
+
+### With Order Change Callback
+
+```tsx
+import DraggableDashboard, { DraggableWrapper } from '@/components/ui/draggable-dashboard'
+import { useState } from 'react'
+
+function AnalyticsDashboard() {
+  const [widgetOrder, setWidgetOrder] = useState<string[]>([])
+
+  const handleOrderChange = async (newOrder: string[]) => {
+    setWidgetOrder(newOrder)
+    
+    // Save to backend
+    await fetch('/api/dashboard/layout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order: newOrder })
+    })
+  }
+
+  return (
+    <div>
+      <p className="mb-4">Current order: {widgetOrder.join(', ')}</p>
+      <DraggableDashboard onOrderChange={handleOrderChange}>
+        <DraggableWrapper id="metrics">
+          <MetricsWidget />
+        </DraggableWrapper>
+        <DraggableWrapper id="chart">
+          <ChartWidget />
+        </DraggableWrapper>
+        <DraggableWrapper id="table">
+          <TableWidget />
+        </DraggableWrapper>
+      </DraggableDashboard>
+    </div>
+  )
+}
+```
+
+### Locked by Default
+
+```tsx
+import DraggableDashboard, { DraggableWrapper } from '@/components/ui/draggable-dashboard'
+
+function PublicDashboard() {
+  return (
+    <DraggableDashboard
+      defaultLocked={true}
+      showLockToggle={true} // Users can unlock if needed
+    >
+      <DraggableWrapper id="public-1">
+        <Card>
+          <CardContent>Public Widget 1</CardContent>
+        </Card>
+      </DraggableWrapper>
+      <DraggableWrapper id="public-2">
+        <Card>
+          <CardContent>Public Widget 2</CardContent>
+        </Card>
+      </DraggableWrapper>
+    </DraggableDashboard>
+  )
+}
+```
+
+### Without Lock Toggle
+
+```tsx
+import DraggableDashboard, { DraggableWrapper } from '@/components/ui/draggable-dashboard'
+
+// Dashboard that's always draggable with no lock UI
+function FlexibleDashboard() {
+  return (
+    <DraggableDashboard
+      showLockToggle={false}
+      showHandles={true}
+    >
+      {/* widgets */}
+    </DraggableDashboard>
+  )
+}
+```
+
+### Custom Persistence Key
+
+```tsx
+import DraggableDashboard, { DraggableWrapper } from '@/components/ui/draggable-dashboard'
+
+// Different users can have different layouts
+function UserDashboard({ userId }: { userId: string }) {
+  return (
+    <DraggableDashboard
+      persistenceKey={`dashboard-layout-${userId}`}
+    >
+      {/* widgets */}
+    </DraggableDashboard>
+  )
+}
+```
+
+### Complex Real-World Example
+
+```tsx
+import DraggableDashboard, { DraggableWrapper } from '@/components/ui/draggable-dashboard'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { LineChart, BarChart, PieChart } from '@/components/charts'
+
+function AdminDashboard() {
+  return (
+    <DraggableDashboard
+      gridCols={6}
+      gap={6}
+      persistenceKey="admin-dashboard"
+      onOrderChange={(order) => {
+        console.log('New layout:', order)
+      }}
+    >
+      {/* Full width header */}
+      <DraggableWrapper id="header" gridSize={{ cols: 6, rows: 1 }}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Sales Dashboard - Q4 2024</CardTitle>
+          </CardHeader>
+        </Card>
+      </DraggableWrapper>
+
+      {/* Large chart - 4 columns */}
+      <DraggableWrapper id="main-chart" gridSize={{ cols: 4, rows: 2 }}>
+        <Card className="h-full">
+          <CardHeader>
+            <CardTitle>Revenue Trends</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <LineChart data={revenueData} />
+          </CardContent>
+        </Card>
+      </DraggableWrapper>
+
+      {/* Side stats - 2 columns, 2 rows */}
+      <DraggableWrapper id="stats" gridSize={{ cols: 2, rows: 2 }}>
+        <Card className="h-full">
+          <CardHeader>
+            <CardTitle>Key Metrics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Sales</p>
+                <p className="text-2xl font-bold">$124,563</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Orders</p>
+                <p className="text-2xl font-bold">1,429</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Conversion</p>
+                <p className="text-2xl font-bold">3.2%</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </DraggableWrapper>
+
+      {/* Regular widgets */}
+      <DraggableWrapper id="pie-chart" gridSize={{ cols: 2, rows: 1 }}>
+        <Card className="h-full">
+          <CardHeader>
+            <CardTitle>Sales by Category</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PieChart data={categoryData} />
+          </CardContent>
+        </Card>
+      </DraggableWrapper>
+
+      <DraggableWrapper id="bar-chart" gridSize={{ cols: 2, rows: 1 }}>
+        <Card className="h-full">
+          <CardHeader>
+            <CardTitle>Top Products</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <BarChart data={productData} />
+          </CardContent>
+        </Card>
+      </DraggableWrapper>
+
+      <DraggableWrapper id="recent-orders" gridSize={{ cols: 2, rows: 1 }}>
+        <Card className="h-full">
+          <CardHeader>
+            <CardTitle>Recent Orders</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <OrdersList orders={recentOrders} />
+          </CardContent>
+        </Card>
+      </DraggableWrapper>
+    </DraggableDashboard>
+  )
+}
+```
+
+## Responsive Behavior
+
+- **Large screens (≥1024px)**: Uses specified `gridCols` value
+- **Tablet (768px - 1023px)**: 2 columns
+- **Mobile (&lt;768px)**: 1 column
+
+## Keyboard Support
+
+- **Space/Enter**: Activate drag mode
+- **Arrow keys**: Move widget while dragging
+- **Space/Enter**: Drop widget
+- **Escape**: Cancel drag
+
+<Note>
+Widget layouts are automatically saved to localStorage and restored on page reload. Use different `persistenceKey` values for different dashboards or users.
+</Note>
+
+<Tip>
+For the best user experience:
+- Use the lock toggle to prevent accidental changes in production
+- Keep widget heights consistent within rows for better alignment
+- Test your dashboard on different screen sizes
+</Tip>
+
+<Warning>
+Ensure each `DraggableWrapper` has a unique `id` prop. Duplicate IDs will cause unexpected behavior in the drag-and-drop functionality.
+</Warning>
