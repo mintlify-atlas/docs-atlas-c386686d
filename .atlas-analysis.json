@@ -1,0 +1,128 @@
+{
+  "projectType": "frontend",
+  "projectName": "RigidUI",
+  "projectDescription": "Enterprise-grade UI components for React and Next.js applications, built on shadcn/ui",
+  "theme": "palm",
+  "primaryColor": "#3b82f6",
+  "lightColor": "#60a5fa",
+  "darkColor": "#1e40af",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Components",
+            "pages": [
+              "components/access-manager",
+              "components/content-grid",
+              "components/currency-manager",
+              "components/draggable-dashboard",
+              "components/guided-tour",
+              "components/image-loader",
+              "components/location-picker",
+              "components/smart-search"
+            ]
+          },
+          {
+            "group": "Form Components",
+            "pages": [
+              "components/file-uploader",
+              "components/multi-step-form-wrapper",
+              "components/password-strength-meter",
+              "components/smart-form"
+            ]
+          },
+          {
+            "group": "Data Display",
+            "pages": [
+              "components/file-explorer",
+              "components/infinite-scroll",
+              "components/notification-center"
+            ]
+          },
+          {
+            "group": "Creative Components",
+            "pages": [
+              "components/data-reveal",
+              "components/draggable-canvas",
+              "components/text-shift",
+              "components/creative-buttons"
+            ]
+          },
+          {
+            "group": "Hooks",
+            "pages": [
+              "hooks/use-location"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Usage Guides",
+            "pages": [
+              "guides/customization",
+              "guides/theming",
+              "guides/react-native",
+              "guides/typescript"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "guides/contributing",
+              "guides/development"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Enterprise-ready React components",
+    "Registry-based installation system",
+    "Built on shadcn/ui methodology",
+    "Tailwind CSS for styling",
+    "Dark mode support",
+    "TypeScript-first with Zod validation",
+    "Cross-platform Web and React Native support",
+    "Accessibility built-in",
+    "Creative animated components",
+    "Security-focused access control",
+    "Advanced form handling with react-hook-form",
+    "Interactive data visualization"
+  ],
+  "publicApiSurface": [
+    "AccessManager - Authentication and authorization system",
+    "ContentGrid - Flexible grid/list component",
+    "CurrencyManager - Multi-currency conversion system",
+    "DraggableDashboard - Interactive drag-and-drop dashboard",
+    "GuidedTour - Interactive step-by-step walkthroughs",
+    "ImageLoader - Advanced image loading with loading states",
+    "LocationPicker - Geographic location selection",
+    "SmartSearch - Advanced search with filters and history",
+    "FileUploader - Drag and drop file upload",
+    "MultiStepFormWrapper - Guided step-by-step forms",
+    "PasswordStrengthMeter - Visual password strength evaluation",
+    "SmartForm - Zod-powered form with TanStack Query",
+    "FileExplorer - Hierarchical file system browser",
+    "InfiniteScroll - Efficient large dataset loading",
+    "NotificationCenter - Notification management system",
+    "DataReveal - Animated sensitive content reveal",
+    "DraggableCanvas - Physics-based draggable canvas",
+    "TextShift - Animated text transitions",
+    "CreativeButtons - Animated button components",
+    "useLocation - Location-based functionality hook"
+  ]
+}
