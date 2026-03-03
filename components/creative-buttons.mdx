@@ -7,29 +7,57 @@ description: A collection of creative and animated button components with unique
 
 ## Installation
 
-<Tabs defaultValue="cli">
-
-<TabsContent value="cli">
-
-```bash
-npx rigidui@latest add creative-buttons
-```
-
-</TabsContent>
-
-<TabsContent value="manual">
+<Note>
+This component is available for manual installation only. Copy the code below into your project.
+</Note>
 
 <Steps>
 
-<Step>Copy and paste the following code into your project.</Step>
+<Step title="Copy the component code">
 
-<ComponentSource name="creative-buttons" />
+Copy and paste the following code into `components/ui/creative-buttons.tsx`:
+
+```tsx
+import * as React from "react"
+import { cn } from "@/lib/utils"
+
+interface BaseButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children: React.ReactNode
+  className?: string
+}
+
+export const GradientGlowButton = React.forwardRef<HTMLButtonElement, BaseButtonProps>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <button
+        ref={ref}
+        className={cn(
+          "flex items-center font-medium text-base px-6 py-3 text-white bg-gradient-to-t from-indigo-900 to-indigo-600 border-none shadow-[0_0.7em_1.5em_-0.5em_rgba(67,56,202,0.6)] tracking-wider rounded-full cursor-pointer select-none transition-all duration-200 hover:shadow-[0_0.5em_1.5em_-0.5em_rgba(67,56,202,0.8)] hover:bg-gradient-to-t hover:from-indigo-950 hover:to-indigo-700 active:shadow-[0_0.3em_1em_-0.5em_rgba(67,56,202,0.8)] active:scale-95",
+          className
+        )}
+        role="button"
+        {...props}
+      >
+        {children}
+      </button>
+    )
+  }
+)
+GradientGlowButton.displayName = "GradientGlowButton"
+
+// Additional button components (AnimatedBorderButton, RetroButton, etc.)
+// See full source at: github.com/fgrreloaded/rigidui
+```
+
+</Step>
+
+<Step title="Update imports">
+
+The component is now ready to use in your project.
+
+</Step>
 
 </Steps>
-
-</TabsContent>
-
-</Tabs>
 
 ## Components
 
